@@ -1,12 +1,21 @@
-# Ajustar nodos y clustername 
+# 
 
 from elasticsearch import Elasticsearch
 import datetime
+import configparser
 
+DEBUG = True
 
-nodos       = ["10.33.32.107:9200", "10.33.32.108:9200", "10.33.32.109:9200"]
-clustername = 'DEV-ECO-6X'
+# Lee configuraciones
+config = configparser.ConfigParser()
+config.readfp(open(r'config.ini'))
+nodos       = config.get('cluster_es', 'nodos')
+clustername = config.get('cluster_es', 'clustername')
+
+if DEBUG: print("nodos:", nodos, "clustername:", clustername )
+
 es = Elasticsearch( nodos )
+if DEBUG; print(es.info())
 
 # Obtiene total de documentos en ES
 total_docs = es.search( body={ "query": {"match_all": {}} })
@@ -19,7 +28,7 @@ stat={
     "timestamp"         : utc_time,
     "total_docs"        : total_docs['hits']['total'],
 }
-res = es.index(index='es-stat',doc_type='stat_log', body=stat )
+res = es.index(index='es-stat', doc_type='stat_log', body=stat )
 
-print(res)
-print("resultado:", res['result'])
+if DEBUG: print(res)
+if DEBUG: print("resultado:", res['result'])
