@@ -15,7 +15,7 @@ clustername = config.get('cluster_es', 'clustername')
 if DEBUG: print("nodos:", nodos, "clustername:", clustername )
 
 es = Elasticsearch( nodos )
-if DEBUG; print(es.info())
+if DEBUG: print(es.info())
 
 # Obtiene total de documentos en ES
 total_docs = es.search( body={ "query": {"match_all": {}} })
