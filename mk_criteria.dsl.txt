@@ -1,0 +1,93 @@
+PUT criteria
+{
+     "mappings": {
+        "criteria_map": { 
+            "properties": { 
+                "tenant"           : { "type": "keyword" },       
+                "variable"         : { "type": "keyword" }, 
+                "variable_desc"    : { "type":  "text" },   
+                "formula"          : { "type":  "text" },
+                "query"            : { "type":  "text" },
+                "frecuency"        : { "type": "float" },
+                "pronostico" : [
+                    "timestamp_init"   : { "type": "date" },     
+                    "duration"         : { "type": "float" },
+                    "estimated_value"  : { "type": "float" },     
+                    "real_value"       : { "type": "float" },
+                    "delta_max_1"      : { "type": "float" },
+                    "delta_min_1"      : { "type": "float" },
+                    "delta_max_2"      : { "type": "float" },
+                    "delta_min_2"      : { "type": "float" },
+                    "delta_max_3"      : { "type": "float" },
+                    "delta_min_3"      : { "type": "float" } 
+                 ]
+        }
+    }
+  }
+}
+
+
+# Prueba 
+DELETE /alert_criteria 
+GET /alert_criteria/def/_search
+{
+  "query": {
+        "match_all": {}
+    }
+}
+
+POST  /alert_criteria/def/
+{     
+   "tenant"           :  "test",       
+   "variable"         :  "tot_docs", 
+   "variable_desc"    :  "total documentos en ES", 
+   "formula"          :  "",
+   "query" : "GET _search { \"query\": { \"match_all\": {} } } ",
+   "frecuency"        :  30
+}
+
+
+POST  /alert_criteria/def
+{     
+   "tenant"           :  "e-contact-qa",       
+   "variable"         :  "tot_docs", 
+   "prono" : [ 
+       {
+        "timestamp_init"   :  "2019-02-14T20:00:00.000Z"  ,     
+        "duration"         :  ""  ,
+        "estimated_value"  :  "100"  ,     
+        "real_value"       :  111  ,
+        "delta_max_1"      :  "200"  ,
+        "delta_min_1"      :  "20"  ,
+        "delta_max_2"      :  "300"  ,
+        "delta_min_2"      :  "18"  ,
+        "delta_max_3"      :  "400"  ,
+        "delta_min_3"      :  "15"   
+        }
+   ] 
+}
+
+POST  /alert_criteria/def
+{  
+   "tenant"           :  "e-contact-qa",       
+   "variable"         :  "tot_docs", 
+   "prono" : [    
+       {
+        "tenant"           :  "e-contact-qa",       
+        "variable"         :  "tot_docs", 
+        "timestamp_init"   :  "2019-02-14T20:30:00.000Z"  ,     
+        "duration"         :  ""  ,
+        "estimated_value"  :  "105"  ,     
+        "real_value"       :  107  ,
+        "delta_max_1"      :  "200"  ,
+        "delta_min_1"      :  "20"  ,
+        "delta_max_2"      :  "300"  ,
+        "delta_min_2"      :  "18"  ,
+        "delta_max_3"      :  "400"  ,
+        "delta_min_3"      :  "15"                      
+       }
+   ]
+}
+
+
+

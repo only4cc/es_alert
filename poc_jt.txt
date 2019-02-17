@@ -1,0 +1,60 @@
+POST  /poc_jt/org
+{
+    "depto" :  "contabilidad",    
+    "empleados" : [ 
+       { "nombre"   :  "julio"  , "edad"     : 56 },
+       { "nombre"   :  "Caszely"  , "edad"     : 75 },
+       { "nombre"   :  "Figeuroa"  , "edad"     : 77 }
+    ]
+}
+
+
+POST  /poc_jt/org
+{
+    "depto" :  "rrhh",    
+    "empleados" : [ 
+       { "nombre"   :  "Reina"  , "edad"     : 44 },
+       { "nombre"   :  "Jose"  , "edad"     : 33 },
+       { "nombre"   :  "Andrea"  , "edad"     : 35, "ubicacion" : "3A" }
+    ]
+}
+
+POST  /poc_jt/org
+{
+    "depto" :  "ti",    
+    "empleados" : [ 
+       { "nombre"   :  "Billy", "edad"     : 61 },
+       { "nombre"   :  "Larry"  , "edad"     : 63 }
+    ]
+}
+
+GET /poc_jt/org/_search
+
+
+GET /poc_jt/org/
+{ 
+  "query": {
+    "match": { "depto" :"ti" }
+  }
+}
+
+
+
+
+POST /alert_criteria/def/XwPr7WgBVUjRmo9t6g_B/_update
+{
+"doc":  { "query" : "{ \"query\": { \"match_all\": {} } }"    }
+}
+
+# Elimina un campo ya creado 
+POST /alert_criteria/def/_update_by_query?conflicts=proceed
+{
+    "script" : "ctx._source.remove('campo')",
+    "query" : {
+        "exists": { "field": "campo" }
+    }
+}
+
+
+GET /_search
+{ "query": {"match_all": {}} })

@@ -1,0 +1,19 @@
+{
+  "query":{
+      "range":{
+         "@timestamp":{
+            "gte":"2019-01-09T11:00:00",
+            "lt":"2019-01-09T12:00:00"
+         }
+      }
+   },
+   "aggregations": {
+        "SUM(eco.sbc_current)": {
+            "value_count": {
+                "field": "eco.sbc_current"
+            }
+        }
+   },
+   "_source": ["eco.sbc_current"]
+}
+
