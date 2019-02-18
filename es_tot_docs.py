@@ -2,7 +2,6 @@
 
 from elasticsearch import Elasticsearch
 import datetime
-
 import yaml
 
 DEBUG = True
