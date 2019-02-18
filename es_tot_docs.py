@@ -3,8 +3,6 @@
 from elasticsearch import Elasticsearch
 import datetime
 
-import configparser
-import json
 import yaml
 
 DEBUG = True
@@ -25,10 +23,9 @@ es = Elasticsearch( nodos )
 if DEBUG: 
     print(es.info())
 
-
 # Obtiene total de documentos en ES
 total_docs = es.search( body={ "query": {"match_all": {}} })
-print( "total documentos : ", total_docs['hits']['total'] )
+if DEBUG: print( "total documentos : ", total_docs['hits']['total'] )
 
 # Registra el total de documentos en el indice es-stat 
 utc_time = datetime.datetime.strftime(datetime.datetime.utcnow(), '%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'

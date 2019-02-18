@@ -8,15 +8,18 @@ from elasticsearch import Elasticsearch
 import datetime
 import pprint
 import alert
-import configparser
+import yaml
 
-DEBUG = False
+DEBUG = True
 
 # Lee configuraciones
-config = configparser.ConfigParser()
-config.readfp(open(r'config.ini'))
-nodos       = config.get('cluster_es', 'nodos')
-clustername = config.get('cluster_es', 'clustername')
+with open("config.yml", 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
+
+for section in cfg:
+    print(section)
+nodos        = cfg['cluster_es']['nodos']
+clustername  = cfg['cluster_es']['clustername']
 
 # Coneccion al cluster
 es = Elasticsearch( nodos )
