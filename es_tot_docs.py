@@ -2,20 +2,29 @@
 
 from elasticsearch import Elasticsearch
 import datetime
+
 import configparser
+import json
+import yaml
 
 DEBUG = True
 
 # Lee configuraciones
-config = configparser.ConfigParser()
-config.readfp(open(r'config.ini'))
-nodos       = config.get('cluster_es', 'nodos')
-clustername = config.get('cluster_es', 'clustername')
+with open("config.yml", 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
+
+for section in cfg:
+    print(section)
+nodos        = cfg['cluster_es']['nodos']
+clustername  = cfg['cluster_es']['clustername']
 
 if DEBUG: print("nodos:", nodos, "clustername:", clustername )
 
 es = Elasticsearch( nodos )
-if DEBUG: print(es.info())
+
+if DEBUG: 
+    print(es.info())
+
 
 # Obtiene total de documentos en ES
 total_docs = es.search( body={ "query": {"match_all": {}} })
