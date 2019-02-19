@@ -27,17 +27,16 @@ POST  /criteria/_doc
    "variable_desc"    :  "total documentos en ES", 
    "formula"          :  "",
    "query" : "{ \"query\": { \"match_all\": {} } } ",
-   "frecuency"        :  30
+   "lapse"            :  30
 }
 
 POST  /criteria/_doc
 {     
    "tenant"           :  "ES",       
    "variable"         :  "tot_docs", 
-    "timestamp_init"   :  "2019-02-14T20:00:00.000Z"  ,     
-    "duration"         :  ""  ,
-    "estimated_value"  :  "100"  ,     
+    "timestamp_init"   :  "2019-02-14T20:00:00.000Z",     
     "real_value"       :  111  ,
+    "estimated_value"  :  "100"  ,     
     "delta_max_1"      :  "200"  ,
     "delta_min_1"      :  "20"  ,
     "delta_max_2"      :  "300"  ,
@@ -48,3 +47,34 @@ POST  /criteria/_doc
 
 
 GET /criteria/_search
+
+POST  /criteria/_doc
+{     
+   "tenant"           :  "ES",       
+   "variable"         :  "tot_docs", 
+    "ini"             : 0,
+    "fin"             : 1,    
+    "estimated_value" :  "100",     
+    "real_value"      :  166  
+}
+
+POST  /criteria/_doc
+{     
+   "tenant"           :  "ES",       
+   "variable"         :  "tot_docs", 
+    "ini"             : 1,
+    "fin"             : 2,    
+    "estimated_value" :  "102",     
+    "real_value"      :  133  
+}
+
+POST  /criteria/_doc
+{     
+   "tenant"           :  "ES",       
+   "variable"         :  "tot_docs", 
+    "ini"             : 2,
+    "fin"             : 3,    
+    "estimated_value" :  "105",     
+    "real_value"      :  102  
+}
+
