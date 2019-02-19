@@ -1,0 +1,50 @@
+PUT criteria
+{
+    "settings" : {
+        "number_of_shards" : 1
+    },
+     "mappings": {
+        "_doc": { 
+            "properties": { 
+                "tenant"           : { "type": "keyword" },       
+                "variable"         : { "type": "keyword" }, 
+                "variable_desc"    : { "type":  "text" },   
+                "query"            : { "type":  "text" },
+                "formula"          : { "type":  "text" },
+                "frecuency"        : { "type": "float" }
+        }
+    }
+  }
+}
+
+
+# Prueba 
+
+POST  /criteria/_doc
+{     
+   "tenant"           :  "ES",       
+   "variable"         :  "tot_docs", 
+   "variable_desc"    :  "total documentos en ES", 
+   "formula"          :  "",
+   "query" : "{ \"query\": { \"match_all\": {} } } ",
+   "frecuency"        :  30
+}
+
+POST  /criteria/_doc
+{     
+   "tenant"           :  "ES",       
+   "variable"         :  "tot_docs", 
+    "timestamp_init"   :  "2019-02-14T20:00:00.000Z"  ,     
+    "duration"         :  ""  ,
+    "estimated_value"  :  "100"  ,     
+    "real_value"       :  111  ,
+    "delta_max_1"      :  "200"  ,
+    "delta_min_1"      :  "20"  ,
+    "delta_max_2"      :  "300"  ,
+    "delta_min_2"      :  "18"  ,
+    "delta_max_3"      :  "400"  ,
+    "delta_min_3"      :  "15"   
+}
+
+
+GET /criteria/_search
