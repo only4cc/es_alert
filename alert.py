@@ -3,17 +3,20 @@ Biblioteca para alertas
 '''
 
 import smtplib
+import textwrap
 
 SMTP_SERVER = "smtpinterno.e-contact.cl"
 FROM = "logs@e-contact.cl"
 TO = ["{{ es_alerts_to_high }}"]
 
 # Interfaz al modulo de alarmas, por el momento solo simula desplegando por pantalla
-def alarma (tenant, varname, variable_desc, value , umbral ):
-    print("tenant:", tenant, " variable: ", variable_desc, "[", varname,"] con el valor ", value ," es mayor que el umbral (", umbral,")")
+def alarma (nivel, tenant, varname, variable_desc, value, timestamp_seg, msg):
+    print(nivel, tenant, varname, "Mensaje:", msg)
+    '''
     SUBJECT = "tenant:", tenant, " variable: ", variable_desc, "[", varname,"] con el valor ", value ," es mayor que el umbral (", umbral,")"
     BODY = "tenant:", tenant, " variable: ", variable_desc, "[", varname,"] con el valor ", value ," es mayor que el umbral (", umbral,")"
-#    sendMail(FROM,TO,SUBJECT,BODY,SMTP_SERVER)
+    sendMail(FROM,TO,SUBJECT,BODY,SMTP_SERVER)
+    '''
 
 def sendMail(FROM,TO,SUBJECT,BODY,SERVER):
     """ Envia mail con la alerta """

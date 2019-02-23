@@ -25,9 +25,11 @@ POST  /criteria/_doc
    "tenant"           :  "ES",       
    "variable"         :  "tot_docs", 
    "variable_desc"    :  "total documentos en ES", 
-   "formula"          :  "",
+   "formula"          :  "",  
    "query" : "{ \"query\": { \"match_all\": {} } } ",
-   "lapse"            :  30
+   "lapse"            :  30,
+   "delta_max_1"      : 1000,
+   "delta_min_1"      : 1000,
 }
 
 POST  /criteria/_doc
