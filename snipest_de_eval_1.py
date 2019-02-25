@@ -1,4 +1,9 @@
 
+def isnull(v, default):
+    try: v
+    except NameError: v = None
+    if v is None:
+        v = default
 
 try: x
 except NameError: x = None
@@ -6,6 +11,9 @@ if x is None:
     x = 'default'
 
 print(x)
+print ( isnull(y,1) )
+
+
 '''
 try: lapso
 except NameError: lapso = None
