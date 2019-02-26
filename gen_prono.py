@@ -1,22 +1,34 @@
 #
 # Genera e Inserta Pronosticos
 # Parametros:
-# tenant, varname
-# timestamp desde y timestamp hasta
+#   tenant, 
+#   varname
+#   timestamp desde y timestamp hasta en segundos epoch
 #
 import datetime, sys, yaml, pprint
 import util
 import variable
 
-def insert_pronostico(tenant, varname, t, valor_pronostico):
-    print("insertando en ES: ", tenant, varname, t, valor_pronostico)
-    pass
+def insert_pronostico(var, tenant, varname, ti, tf, valor_pronostico):
+    print("Insertando en ES:", tenant, varname, ti, tf, valor_pronostico)
+    pronostic = {
+                "tenant"           : tenant,
+                "varname"          : varname,
+                "estimated_value"  : valor_pronostico,
+                "ini"              : ti,
+                "fin"              : tf
+        }
+    print("Pronostico:\n",pronostic)
+    try:
+        resp = var.insert_prono(pronostic)   
+    except Exception as e:
+        print("Error:\n",e)
 
-def gen_pronostic(tenant, varname, ti_from, tf_to):
-    var     = variable.Variable(tenant, varname)    
+
+def gen_pronostic(var, tenant, varname, ti_from, tf_to):
     var.get_criterio()
-    fn 	    = var.get_formula()
-    lapse 	= var.get_lapse()
+    fn      = var.get_formula()
+    lapse   = var.get_lapse()
     t = ti_from
     while ( t < tf_to):
         tt = util.get_utc_hora_min(t)
@@ -24,26 +36,36 @@ def gen_pronostic(tenant, varname, ti_from, tf_to):
         print(datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S'), end = "\t")
         valor_pronostico = eval(fn)
         print(valor_pronostico)
-        insert_pronostico(tenant, varname, t, valor_pronostico)
-        t = t + lapse*60 # Para llevarlo a segundos
-			
+        t_sig = t + lapse*60 # Para llevarlo a segundos
+        insert_pronostico(var, tenant, varname, t, t_sig, valor_pronostico)
+        t = t_sig 
+            
+
 def main():
-	DEMO  = True    # Para No digitar tenant, varname :)
+    DEMO  = True    # Para No digitar tenant, varname :)
 
-	if ( len(sys.argv) == 4 ):
-		tenant  = sys.argv[1]    # Cuando la variable es "interna" ie Elasticsearch
-		varname = sys.argv[2]    # Nombre de la variable: 
-		ti_from = sys.argv[3]    # Fecha desde en epoch segundos
-		tf_to   = sys.argv[4]	 # Fecha hasta en epoch segundos
+    if ( len(sys.argv) == 4 ):
+        tenant  = sys.argv[1]    # Cuando la variable es "interna" ie Elasticsearch
+        varname = sys.argv[2]    # Nombre de la variable: 
+        ti_from = sys.argv[3]    # Fecha desde en epoch segundos <----
+        tf_to   = sys.argv[4]    # Fecha hasta en epoch segundos <----
 
-	if DEMO:
-		tenant  = 'ES'          
-		varname = 'tot_docs'   	
-		ti_from = datetime.datetime.now().timestamp()
-		tf_to   = ti_from + 2 * 60 * 60 
+    if DEMO:
+        tenant  = 'ES'          
+        varname = 'tot_docs'
+        ti_from = datetime.datetime.now().timestamp()
+        tf_to   = ti_from + (2*60*60)   # 2 es para 2 Horas
 
-	print ("generacion de pronosticos para "+tenant+"."+varname+" desde:",ti_from, util.get_utc_hora_min(ti_from),"hasta:",tf_to, util.get_utc_hora_min(tf_to))
-	gen_pronostic(tenant, varname, ti_from, tf_to )
+        fecha = "2018-10-31T13:30" 
+        ts    = util.get_seg_epoch_from_date(fecha)
+        print("fecha:", fecha, "ts:", ts)
+        print("HH:MM :",util.get_utc_hora_min(ts))
+        exit()
+
+    var = variable.Variable(tenant, varname)
+    
+    print ("generacion de pronosticos para "+tenant+"."+varname+" desde:",ti_from, util.get_utc_hora_min(ti_from),"hasta:",tf_to, util.get_utc_hora_min(tf_to))
+    gen_pronostic(var, tenant, varname, ti_from, tf_to )
 
 
 if __name__ == '__main__':

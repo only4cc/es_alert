@@ -138,7 +138,7 @@ class Variable:
                                         '}}'
                     )
             if DEBUG: print ("buscando pronostico con la consulta:", self.query_pronostico, " ...")
-            self.pronostico = es.search(index='criteria', body=self.query_pronostico ) #doc_type='prono',
+            self.pronostico = self.es.search(index='criteria', body=self.query_pronostico ) #doc_type='prono',
             #---------------------------------------------------------------------------------------------------
             if DEBUG:
                 print("\nPronostico:")
@@ -197,3 +197,8 @@ class Variable:
 
     def get_lapse(self):
         return self.lapso
+
+    def insert_prono(self, pronostic ):
+        res = self.es.index(index='criteria', doc_type='_doc', body=pronostic ) 
+        return res
+

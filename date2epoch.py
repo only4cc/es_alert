@@ -1,0 +1,9 @@
+import util, sys
+
+fecha  = sys.argv[1]
+try:
+    ts    = util.get_seg_epoch_from_date(fecha)
+    print("segundos Epoch para ",fecha," es ",ts)
+except Exception as e:    
+    print(e)
+    print("Formato de entrada de la fecha es YYYY-MM-DDTHH:MM")

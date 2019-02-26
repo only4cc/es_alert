@@ -1,6 +1,7 @@
 ''' 
 Biblioteca de utilitarios
 '''
+
 import datetime
 import time
 
@@ -21,4 +22,15 @@ def get_utc_hora_min(ts):
 
 def get_seg_epoch_now():
     return datetime.datetime.now().timestamp()
+
+def get_seg_epoch_from_date(fecha):
+    fecha = fecha[:16]   # Desprecia todo lo que viene despues de Minutos
+    format = "%Y-%m-%dT%H:%M" 
+    mydt   = datetime.datetime.strptime(fecha, format)
+    epoch  = datetime.datetime(1970, 1, 1)
+    segs   = (mydt - epoch).total_seconds()
+    return segs
+
+
+
     
