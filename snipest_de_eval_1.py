@@ -1,4 +1,20 @@
+import yaml
+import os
 
+try:
+    currdir = os.getcwd()
+    with open(currdir+"/config.yml", 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+except:
+    print("Error fatal, no se pudo leer el archivo de las configuraciones")
+    exit()
+    
+nodos        = cfg['cluster_es']['nodos']
+clustername  = cfg['cluster_es']['clustername']
+prono_type   = cfg['defaults']['prono_type'] 
+print(nodos, clustername,"Pronostico:", prono_type)
+
+'''        
 def isnull(v, default):
     try: v
     except NameError: v = None
@@ -14,7 +30,6 @@ print(x)
 print ( isnull(y,1) )
 
 
-'''
 try: lapso
 except NameError: lapso = None
 if ( lapso is None ): 
