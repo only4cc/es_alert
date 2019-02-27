@@ -4,7 +4,7 @@ cluster_es:
 
 defaults:
   "lapse":       15
-  "veces_warn":   3
-  "veces_alert":  4
-  "prono_type":  'F'  
+  "times_warn":   3
+  "times_alert":  4
+  "prono_type":  'F'           # formula 
   "umbral_type": 'porcentual'  # 'fix'

@@ -23,18 +23,21 @@ def insert_pronostico(var, tenant, varname, ti, tf, valor_pronostico):
         resp = var.insert_prono(pronostic)   
     except Exception as e:
         print("Error:\n",e)
+    return resp
 
 
-def gen_pronostic(var, tenant, varname, ti_from, tf_to):
+def genera_pronostico(var, tenant, varname, ti_from, tf_to):
+    ''' genera_pronostico : Crea las entradas en ES con los valores pronosticados
+    para cada lapso de tiempo (dese-hasta)''' 
     var.get_criterio()
     fn      = var.get_formula()
     lapse   = var.get_lapse()
     t = ti_from
     while ( t < tf_to):
         tt = util.get_utc_hora_min(t)
+        valor_pronostico = eval(fn)
         print(tenant, varname, ' : ', tt, end = "\t")
         print(datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S'), end = "\t")
-        valor_pronostico = eval(fn)
         print(valor_pronostico)
         t_sig = t + lapse*60 # Para llevarlo a segundos
         insert_pronostico(var, tenant, varname, t, t_sig, valor_pronostico)
@@ -56,16 +59,19 @@ def main():
         ti_from = datetime.datetime.now().timestamp()
         tf_to   = ti_from + (2*60*60)   # 2 es para 2 Horas
 
+        print("Prueba con tiempos y fechas.")
         fecha = "2018-10-31T13:30" 
         ts    = util.get_seg_epoch_from_date(fecha)
         print("fecha:", fecha, "ts:", ts)
         print("HH:MM :",util.get_utc_hora_min(ts))
-        exit()
+        
+    try:
+        var = variable.Variable(tenant, varname)
+    except Exception as e:
+        print(e, "no se pudo conectar a ES")
 
-    var = variable.Variable(tenant, varname)
-    
     print ("generacion de pronosticos para "+tenant+"."+varname+" desde:",ti_from, util.get_utc_hora_min(ti_from),"hasta:",tf_to, util.get_utc_hora_min(tf_to))
-    gen_pronostic(var, tenant, varname, ti_from, tf_to )
+    genera_pronostico(var, tenant, varname, ti_from, tf_to )
 
 
 if __name__ == '__main__':

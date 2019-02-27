@@ -16,6 +16,7 @@ def alert_internal_problem(tenant,varname):
 class Variable:
     # El identificadir de cada Variable es tenant + varname 
     def __init__(self, tenant, varname):
+        ''' Obtiene parametros por defecto y Se conecta a ES '''
         self.tenant  = tenant
         self.varname = varname
         # Lee configuraciones
@@ -29,15 +30,15 @@ class Variable:
 
         self.nodos        = self.cfg['cluster_es']['nodos']
         self.clustername  = self.cfg['cluster_es']['clustername']
-        # Coneccion al cluster        
+        
+        # Coneccion al cluster         
         try:
             print("coneccion a ES ...", end=" ")
-            self.es = Elasticsearch( self.nodos )
-        except:
+            self.es = Elasticsearch(self.nodos, timeout=3)
+        except Exception as e:
             print("No se pudo conectar, se aborta.")
-            exit()
-        finally:
-            print("Conectado.")
+            print(e)
+            sys.exit("No se pudo conectar, se aborta.")        
 
     def get_criterio(self):   
         # Obtiene definiciones de criterio de la variable
@@ -202,3 +203,53 @@ class Variable:
         res = self.es.index(index='criteria', doc_type='_doc', body=pronostic ) 
         return res
 
+    def create_criterio(self, varname_desc, query, prono_type, formula, lapso, umbral_type='P', umbral_percent=None ):   
+        if (varname_desc is None):
+            print("varname_desc es obligatoria, se aborta registro")
+            return 
+        
+        if (query is None):
+            print("query es obligatoria, se aborta registro")
+            return 
+    
+        prono_type    = prono_type  # 'F' =  Formula / "D" = Discreto                  
+        
+        if ( prono_type == 'F'):
+            if ( formula is None):
+                print("dado qe el pronostico es por formula, esta es obligatoria, se abora registro")
+                return 
+        
+        if ( lapso is None ):
+            lapso = self.cfg['defaults']['lapse']
+        
+        #if ( veces_warn is None):         
+            veces_warn    =  self.cfg['defaults']['times_warn'] 
+        #if ( veces_alert is None):
+            veces_alert   =  self.cfg['defaults']['times_alert'] 
+        
+        umbral_type   =  umbral_type # 'porcentual' / 'fix'
+        if ( umbral_type == 'P'):
+            percent       = 0.01 
+            
+        body = {
+                "tenant"            : self.tenant,
+                "varname"           : self.varname,
+                "varname_desc"      : varname_desc,
+                "query"             : query,
+                "prono_type"        : prono_type,
+                "formula"           : formula,
+                "lapse"             : lapso,
+                "times_alert"       : veces_alert,
+                "times_warn"        : veces_warn,
+                "alert_count"       : veces_alert,
+                "umbral_type"       : umbral_type,
+                "umbral_percent"    : umbral_percent,
+                "alarm_count"       : 0    # Inicializa las alarmas en cero    
+        }
+        
+        try:
+            resp = self.es.index(index='criteria', doc_type='_doc',body=body )
+        except Exception as e:
+            print(e)
+            print("Error:\nNo se pudo crear la definicion de la variable ["+self.varname+"] tenant ["+self.tenant+"]")
+        return resp
