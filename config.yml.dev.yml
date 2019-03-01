@@ -1,0 +1,10 @@
+cluster_es:
+  "nodos"       : ["10.36.16.61:9200", "10.36.16.63:9200", "10.36.16.67:9200"]
+  "clustername" : "ECO-PROD-5x"
+
+defaults:
+  "lapse":       15
+  "times_warn":   3
+  "times_alert":  4
+  "prono_type":  'F'           # formula 
+  "umbral_type": 'porcentual'  # 'fix'

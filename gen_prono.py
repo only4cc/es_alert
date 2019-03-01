@@ -1,7 +1,7 @@
 #
 # Genera e Inserta Pronosticos
 # Parametros:
-#   tenant, 
+#   tenant
 #   varname
 #   timestamp desde y timestamp hasta en segundos epoch
 #
@@ -10,14 +10,15 @@ import util
 import variable
 
 def insert_pronostico(var, tenant, varname, ti, tf, valor_pronostico):
+    ''' insert_pronostico : Crear en ES con los valores pronosticados''' 
     print("Insertando en ES:", tenant, varname, ti, tf, valor_pronostico)
     pronostic = {
-                "tenant"           : tenant,
-                "varname"          : varname,
-                "estimated_value"  : valor_pronostico,
-                "ini"              : ti,
-                "fin"              : tf
-        }
+                    "tenant"           : tenant,
+                    "varname"          : varname,
+                    "estimated_value"  : valor_pronostico,
+                    "ts_ini"           : ti,
+                    "ts_end"           : tf
+                }
     print("Pronostico:\n",pronostic)
     try:
         resp = var.insert_prono(pronostic)   
@@ -30,16 +31,16 @@ def genera_pronostico(var, tenant, varname, ti_from, tf_to):
     ''' genera_pronostico : Crea las entradas en ES con los valores pronosticados
     para cada lapso de tiempo (dese-hasta)''' 
     var.get_criterio()
-    fn      = var.get_formula()
-    lapse   = var.get_lapse()
-    t = ti_from
+    fn    = var.get_formula()
+    lapse = var.get_lapse()
+    t     = ti_from
     while ( t < tf_to):
         tt = util.get_utc_hora_min(t)
         valor_pronostico = eval(fn)
         print(tenant, varname, ' : ', tt, end = "\t")
         print(datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S'), end = "\t")
         print(valor_pronostico)
-        t_sig = t + lapse*60 # Para llevarlo a segundos
+        t_sig = t + lapse*60      # Para llevarlo a segundos
         insert_pronostico(var, tenant, varname, t, t_sig, valor_pronostico)
         t = t_sig 
             
@@ -57,7 +58,7 @@ def main():
         tenant  = 'ES'          
         varname = 'tot_docs'
         ti_from = datetime.datetime.now().timestamp()
-        tf_to   = ti_from + (2*60*60)   # 2 es para 2 Horas
+        tf_to   = ti_from + (24*60*60)   # 24 es para 24 Horas
 
         print("Prueba con tiempos y fechas.")
         fecha = "2018-10-31T13:30" 

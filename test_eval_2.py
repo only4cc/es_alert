@@ -1,5 +1,5 @@
 import unittest
-from eval_2 import Variable
+from variable import Variable
 
 class TestVariable(unittest.TestCase):
   
@@ -7,11 +7,12 @@ class TestVariable(unittest.TestCase):
         tenant  = 'ES'
         varname = 'tot_docs'
         var = Variable(tenant, varname)
+
         self.assertTrue(var,"Existe var")
-        self.assertTrue( len(var.get_criterio()) > 10,"Tiene criterio")
-        
-#        self.assertIsInstance(self, Variable, "Existe")
-#        self.assertEqual(self, 1, "Econtre")
+        print("\nlargo de criterio", len(var.get_criterio()))
+        self.assertTrue(len(var.get_criterio()) > 3,True)
+        self.assertEqual(var.get_current_value() > 10000, True)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -8,7 +8,7 @@ import datetime, sys, yaml, pprint
 import alert
 import util
 import variable
-
+import pprint
 
 def main():
 
@@ -24,11 +24,13 @@ def main():
         tenant  = 'ES'          
         varname = 'tot_docs'   
 
+    # Crea la instancia de la clase "Variable"
     var = variable.Variable(tenant, varname)
     
     # Obtiene "criterio" definido para la variable
     # --------------------------------------------
     var.get_criterio()
+    if DEBUG: print (var)
 
     # Consulta el valor ACTUAL de la variable monitoreada usando la definicion de "criterio"   
     # --------------------------------------------------------------------------------------
@@ -43,15 +45,20 @@ def main():
     # Obtiene el Pronostico para la variable en ese timestamp
     # -------------------------------------------------------
     value = var.get_pronostico(seg_timestamp)
-    [umbral_max, umbral_min] = var.get_umbral(seg_timestamp) #<-- Debe obtenerse de criterio para el rango de hora y la variable monitoreada    
+    if ( value > 0 ):
+        [umbral_max, umbral_min] = var.get_umbral(seg_timestamp) #<-- Debe obtenerse de criterio para el rango de hora y la variable monitoreada    
+    else:
+        print("Sin pronostico en el lapso de ese instante: ",seg_timestamp)
+        exit()
 
     # Evaluacion
     # ----------
     print("*** comparando el valor actual: [",value,"] con umbrales min: [",umbral_min,"] y max: [", umbral_max,"]")
+    print("*** variaciones respecto ubral: %6.4f y %6.4f" % ( (100*value / umbral_min), (100*value / umbral_max) ) )
     if ( value < umbral_max and value > umbral_min ):
-        print("Ok")
-        var.reduce()
+        var.reducer()
         print("anomalias consecutivas:",var.veces())
+        print("Ok")
     else:
         var.acumula()
         veces_warn  = var.get_veces_warn()
