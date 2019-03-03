@@ -117,6 +117,17 @@ class Variable:
         self.time_currval = util.get_seg_epoch_now()
         return self.currval
 
+    def save_current_value(self):
+        # Guarda en forma persistente valor medido (para mantener Historia de la variable)
+        history = {
+                    "tenant"           : self.tenant,
+                    "varname"          : self.varname,
+                    "value"            : self.currval,
+                    "timestamp"        : self.time_currval
+                }
+        res = self.es.index(index='criteria', doc_type='def', body=history ) 
+        return res
+
     def get_pronostico(self, t_seg_epoch):
         # Obtiene valor pronosticado para ese instante o intervalo de tiempo 
         # ------------------------------------------------------------------

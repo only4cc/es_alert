@@ -38,6 +38,9 @@ def main():
     # Timestamp de Ahora
     seg_timestamp = util.get_seg_epoch_now()
     
+    # Almacena registro persistente para la Historia
+    var.save_current_value()
+    
     if DEBUG: 
         utc_time      = util.get_utc_now()
         print ("A las: [", utc_time, "] el valor medido es:[", value, "]\nEpoch timestamp seg:", seg_timestamp )
