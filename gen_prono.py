@@ -32,6 +32,10 @@ def genera_pronostico(var, tenant, varname, ti_from, tf_to):
     para cada lapso de tiempo (dese-hasta)''' 
     var.get_criterio()
     fn    = var.get_formula()
+    if ( len(fn) < 2 ):
+        print("No esta definida la formaula, no se puede generar el pronostico")
+        exit()
+
     lapse = var.get_lapse()
     t     = ti_from
     while ( t < tf_to):
@@ -46,32 +50,40 @@ def genera_pronostico(var, tenant, varname, ti_from, tf_to):
             
 
 def main():
-    DEMO  = True    # Para No digitar tenant, varname :)
 
-    if ( len(sys.argv) == 4 ):
+    DEMO  = False    # Para No digitar tenant, varname :)
+
+    if ( len(sys.argv) == 5 ):
         tenant  = sys.argv[1]    # Cuando la variable es "interna" ie Elasticsearch
         varname = sys.argv[2]    # Nombre de la variable: 
         ti_from = sys.argv[3]    # Fecha desde en epoch segundos <----
         tf_to   = sys.argv[4]    # Fecha hasta en epoch segundos <----
-
+    else:
+        print("pnumero de arametros:", len(sys.argv) )
+    
     if DEMO:
         tenant  = 'ES'          
         varname = 'tot_docs'
         ti_from = datetime.datetime.now().timestamp()
         tf_to   = ti_from + (24*60*60)   # 24 es para 24 Horas
 
-        print("Prueba con tiempos y fechas.")
-        fecha = "2018-10-31T13:30" 
-        ts    = util.get_seg_epoch_from_date(fecha)
-        print("fecha:", fecha, "ts:", ts)
-        print("HH:MM :",util.get_utc_hora_min(ts))
+    
+        # print("Prueba con tiempos y fechas.")
+        # fecha = "2018-10-31T13:30" 
+        # ts    = util.get_seg_epoch_from_date(fecha)
+        # print("fecha:", fecha, "ts:", ts)
+        # print("HH:MM :",util.get_utc_hora_min(ts))
         
     try:
         var = variable.Variable(tenant, varname)
     except Exception as e:
         print(e, "no se pudo conectar a ES")
 
-    print ("generacion de pronosticos para "+tenant+"."+varname+" desde:",ti_from, util.get_utc_hora_min(ti_from),"hasta:",tf_to, util.get_utc_hora_min(tf_to))
+    ti_from = int(ti_from)
+    tf_to   = int(tf_to)
+    print ("generacion de pronosticos para "+tenant+"."+varname+" desde:",ti_from, " hasta:",tf_to )
+    print ("desde:",util.get_utc_hora_min(ti_from)," hasta:",util.get_utc_hora_min(tf_to) )
+
     genera_pronostico(var, tenant, varname, ti_from, tf_to )
 
 

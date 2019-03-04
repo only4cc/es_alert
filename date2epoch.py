@@ -1,7 +1,7 @@
 import util, sys
 
-fecha  = sys.argv[1]
 try:
+    fecha  = sys.argv[1]
     ts    = util.get_seg_epoch_from_date(fecha)
     print("segundos Epoch para ",fecha," es ",ts)
 except Exception as e:    

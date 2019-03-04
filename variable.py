@@ -78,11 +78,7 @@ class Variable:
             except: self.prono_type   = self.cfg['defaults']['prono_type']  # 'F' =  Formula / "D" = Discreto          
             
             if ( self.prono_type == 'F' ):
-                try:    
-                    self.formula       = self.criterio['hits']['hits'][0]['_source']['formula'] 
-                    if ( len(self.formula) == 0 ):
-                        self.formula   = " 0.444 * t + 33333 "
-                        if DEBUG: print ("formula:", self.formula)
+                try:  self.formula = self.criterio['hits']['hits'][0]['_source']['formula'] 
                 except Exception as e:
                     print(e)
 
@@ -143,8 +139,8 @@ class Variable:
         else:
             # Pronostico basado en registros en ES            
             inicio_i = int(utc_hhmm[:2]) * self.lapso    
-            inicio   = str( inicio_i )                 # HHMM de Inicio del Lapso
-            fin      = str( inicio_i + self.lapso )    # HHMM de Fin del Lapso
+            # inicio   = str( inicio_i )                 # HHMM de Inicio del Lapso
+            # fin      = str( inicio_i + self.lapso )    # HHMM de Fin del Lapso
             # self.query_pronostico = ('{'
             #                             '"query": {'
             #                             '    "bool": {'
@@ -241,16 +237,19 @@ class Variable:
         if (query is None):
             print("query es obligatoria, se aborta registro")
             return 
-    
-        prono_type    = prono_type  # 'F' =  Formula / "D" = Discreto                  
+        
+        if (prono_type is None):
+            self.prono_type    = prono_type  # 'F' =  Formula / "D" = Discreto                  
+            print("Tipo de pronostico [prono_type] es obligatorio, se aborta registro")
+            return 
         
         if ( prono_type == 'F'):
-            if ( formula is None):
+            if ( formula is None ):
                 print("dado qe el pronostico es por formula, esta es obligatoria, se abora registro")
                 return 
         
         if ( lapso is None ):
-            lapso = self.cfg['defaults']['lapse']
+            lapso = self.cfg['defaults']['lapse']   # Se usa el default general
         
         #if ( veces_warn is None):         
             veces_warn    =  self.cfg['defaults']['times_warn'] 
@@ -266,7 +265,7 @@ class Variable:
                 "varname"           : self.varname,
                 "varname_desc"      : varname_desc,
                 "query"             : query,
-                "prono_type"        : prono_type,
+                "prono_type"        : self.prono_type,
                 "formula"           : formula,
                 "lapse"             : lapso,
                 "times_alert"       : veces_alert,
