@@ -6,5 +6,5 @@ defaults:
   "lapse":       15
   "times_warn":   3
   "times_alert":  4
-  "prono_type":  'F'           # formula 
-  "umbral_type": 'porcentual'  # 'fix'
+  "prono_type":  'F'           # formula | "D" Discrete 
+  "umbral_type": 'porcentual'  # 'fix' 

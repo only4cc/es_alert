@@ -127,7 +127,6 @@ class Variable:
     def get_pronostico(self, t_seg_epoch):
         # Obtiene valor pronosticado para ese instante o intervalo de tiempo 
         # ------------------------------------------------------------------
-        utc_hhmm = util.get_utc_hora_min(t_seg_epoch)   # en Horas:Minutos
         if ( self.prono_type == 'F'):                   
             # Pronostico basado en Formula
             t = t_seg_epoch
@@ -138,7 +137,7 @@ class Variable:
             return self.ev
         else:
             # Pronostico basado en registros en ES            
-            inicio_i = int(utc_hhmm[:2]) * self.lapso    
+            # inicio_i = int(utc_hhmm[:2]) * self.lapso    
             # inicio   = str( inicio_i )                 # HHMM de Inicio del Lapso
             # fin      = str( inicio_i + self.lapso )    # HHMM de Fin del Lapso
             # self.query_pronostico = ('{'
@@ -183,7 +182,7 @@ class Variable:
         return  self.ev
 
     def get_umbral(self, seg_timestamp):
-        
+        ''' Obtiene Umbrales para alarmar '''
         if self.umbral_type == 'fix':
             try:
                 delta_max_1 = self.criterio['hits']['hits'][0]['_source']['delta_max_1']
@@ -229,7 +228,8 @@ class Variable:
         res = self.es.index(index='criteria', doc_type='def', body=pronostic ) 
         return res
 
-    def create_criterio(self, varname_desc, query, prono_type, formula, lapso, umbral_type='P', umbral_percent=None ):   
+    def create_criterio(self, varname_desc, query, prono_type, formula, lapso, umbral_type, umbral_factor_1=None, umbral_factor_2=None ):   
+        
         if (varname_desc is None):
             print("varname_desc es obligatoria, se aborta registro")
             return 
@@ -257,9 +257,10 @@ class Variable:
             veces_alert   =  self.cfg['defaults']['times_alert'] 
         
        # umbral_type'porcentual' / 'fix'
-        if ( umbral_type == 'P'):
-            self.percent       = 0.01 
-            
+        #if ( umbral_type == 'porcentual'):
+        self.umbral_factor_1       = umbral_factor_1
+        self.umbral_factor_2       = umbral_factor_2
+
         body = {
                 "tenant"            : self.tenant,
                 "varname"           : self.varname,
@@ -272,7 +273,8 @@ class Variable:
                 "times_warn"        : veces_warn,
                 "alert_count"       : veces_alert,
                 "umbral_type"       : umbral_type,
-                "umbral_percent"    : umbral_percent,
+                "umbral_factor_1"   : umbral_factor_1,
+                "umbral_factor_2"   : umbral_factor_2,
                 "alarm_count"       : 0    # Inicializa las alarmas en cero    
         }
         
