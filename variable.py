@@ -239,7 +239,6 @@ class Variable:
             return 
         
         if (prono_type is None):
-            self.prono_type    = prono_type  # 'F' =  Formula / "D" = Discreto                  
             print("Tipo de pronostico [prono_type] es obligatorio, se aborta registro")
             return 
         
@@ -252,21 +251,19 @@ class Variable:
             lapso = self.cfg['defaults']['lapse']   # Se usa el default general
         
         #if ( veces_warn is None):         
-            veces_warn    =  self.cfg['defaults']['times_warn'] 
+        veces_warn    =  self.cfg['defaults']['times_warn'] 
         #if ( veces_alert is None):
-            veces_alert   =  self.cfg['defaults']['times_alert'] 
+        veces_alert   =  self.cfg['defaults']['times_alert'] 
         
-       # umbral_type'porcentual' / 'fix'
+        #umbral_type'porcentual' / 'fix'
         #if ( umbral_type == 'porcentual'):
-        self.umbral_factor_1       = umbral_factor_1
-        self.umbral_factor_2       = umbral_factor_2
 
         body = {
                 "tenant"            : self.tenant,
                 "varname"           : self.varname,
                 "varname_desc"      : varname_desc,
                 "query"             : query,
-                "prono_type"        : self.prono_type,
+                "prono_type"        : prono_type,
                 "formula"           : formula,
                 "lapse"             : lapso,
                 "times_alert"       : veces_alert,
@@ -279,11 +276,11 @@ class Variable:
         }
         
         try:
-            resp = self.es.index(index='criteria', doc_type='_doc',body=body )
+            self.es.index(index='criteria', doc_type='def',body=body )
         except Exception as e:
             print(e)
             print("Error:\nNo se pudo crear la definicion de la variable ["+self.varname+"] tenant ["+self.tenant+"]")
-        return resp
+
 
     def __str__(self):
         salida = "tenant:"+self.tenant + ", varname:" + self.varname + ", varname_desc:" \
