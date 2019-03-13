@@ -1,1 +1,1 @@
-## Alertas basadas data en Elasticsearch
+## Alertas basadas en data de Elasticsearch
