@@ -1,0 +1,9 @@
+
+# tenant, varname
+#*/15 * * * *    /home/es_alert/.pyenv/versions/3.6.3/bin/python /home/es_alert/src/eval_2.py ES tot_docs
+*/15 * * * *    docker run --network="host" es_alert python eval_2.py ES tot_docs
+
+# tenant, varname, frecuencia
+#* 0 * * *  /home/es_alert/.pyenv/versions/3.6.3/bin/python   /home/es_alert/src/gen_prono.sh ES tot_docs 1800
+* 0 * * *  docker run --network="host" es_alert sh gen_prono.sh ES tot_docs 1800
+
