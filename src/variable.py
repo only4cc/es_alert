@@ -288,3 +288,21 @@ class Variable:
                 + "prono_type: "+self.prono_type + ", formula: " +self.formula + ", umbral_type:" \
                 + self.umbral_type
         return salida
+
+
+    def get_all_vars(self):
+        # Obtiene todas las variables
+        query_get_all_vars = (
+                    '{'
+                    '  "query": {'
+                    '    "match_all": {}  '
+                    '  }'
+                    '}' 
+        )
+        try: variables = self.es.search(index='var_def', body=query_get_all_vars )
+        except Exception as e: 
+            print("Error fatal no se pudieron recuperar las variables")
+            print(e)
+            exit()
+
+        return variables
