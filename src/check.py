@@ -15,7 +15,7 @@ def main():
     DEMO  = True    # Para No digitar tenant, varname :)
 
     # Variable a evaluar (tenant es nulo si es una variable del cluster)
-    if ( len(sys.argv) == 2 ):
+    if ( len(sys.argv) == 3 ):
         tenant  = sys.argv[1]    # Cuando la variable es "interna" ie Elasticsearch
         varname = sys.argv[2]    # Nombre de la variable: "tot_docs" que corresponde a total de documentos en ES
 
@@ -33,12 +33,10 @@ def main():
 
     # Consulta el valor ACTUAL de la variable monitoreada usando la definicion de "criterio"   
     # --------------------------------------------------------------------------------------
-    value         = var.get_current_value()    
-    # Timestamp de Ahora
+    value = var.get_current_value()    
+       
+     # Timestamp de Ahora
     seg_timestamp = util.get_seg_epoch_now()
-    
-    # Almacena registro persistente para la Historia
-    #var.save_current_value()
     
     if DEBUG: 
         utc_time      = util.get_utc_now()
@@ -46,8 +44,8 @@ def main():
 
     # Obtiene el Pronostico para la variable en ese timestamp
     # -------------------------------------------------------
-    value = var.get_pronostico(seg_timestamp)
-    if ( value > 0 ):
+    value_pron = var.get_pronostico(seg_timestamp)
+    if ( value_pron > 0 ):
         [umbral_max, umbral_min] = var.get_umbral(seg_timestamp) #<-- Debe obtenerse de criterio para el rango de hora y la variable monitoreada    
     else:
         print("Sin pronostico en el lapso de ese instante: ",seg_timestamp)
@@ -85,6 +83,8 @@ def main():
             if DEBUG:
                 print("Nivel :",nivel," ...")
 	
+    evaluation = 'pendiente ...'
+    var.save_evaluation(evaluation)
 
 if __name__ == '__main__':
     main()

@@ -62,7 +62,7 @@ class Variable:
         if DEBUG: 
             print("Buscando definicion de criterio con :\n",query_get_query)
         
-        try: self.criterio = self.es.search(index='criteria', body=query_get_query )
+        try: self.criterio = self.es.search(index='var_def', body=query_get_query )
         except Exception as e: 
             print("Error fatal no se puedo recuperar la query del criterio")
             print(e)
@@ -306,3 +306,38 @@ class Variable:
             exit()
 
         return variables
+
+    def save_evaluation(self, evaluation):
+        history = {
+                    "tenant"           : self.tenant,
+                    "varname"          : self.varname,
+                    "value"            : self.currval,
+                    "timestamp"        : self.time_currval,
+                    "evaluation"       : evaluation
+                }
+        res = self.es.index(index='var_hist', doc_type='def', body=history ) 
+        return res
+
+    def get_last_ts(self):
+        query_get_last_ts = (
+                                '{'
+                                '  "query": { '
+                                '    "bool": {'
+                                '    "must": ['
+                                '        { "match": { "tenant": "' + self.tenant  +'" }}, '
+                                '        { "match": { "varname": "'+ self.varname +'" }}'
+                                '           ] '
+                                '     }'
+                                '  }, "size": 1,'
+                                '  "sort": [ {"timestamp": {"order": "desc"} } ]'
+                                '}'
+                            )
+        #print(query_get_last_ts)
+        try: lts = self.es.search(index='var_hist', body=query_get_last_ts )
+        except Exception as e: 
+            print("Error fatal no se pudo recuperar ultima medicion")
+            print(e)
+            exit()
+        
+        last_ts = lts['hits']['hits'][0]['_source']['timestamp'] 
+        return last_ts
