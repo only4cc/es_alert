@@ -121,7 +121,7 @@ class Variable:
                     "value"            : self.currval,
                     "timestamp"        : self.time_currval
                 }
-        res = self.es.index(index='criteria', doc_type='def', body=history ) 
+        res = self.es.index(index='var_hist', doc_type='def', body=history ) 
         return res
 
     def get_pronostico(self, t_seg_epoch):
@@ -225,7 +225,7 @@ class Variable:
         return self.lapso
 
     def insert_prono(self, pronostic):
-        res = self.es.index(index='criteria', doc_type='def', body=pronostic ) 
+        res = self.es.index(index='var_prono', doc_type='def', body=pronostic ) 
         return res
 
     def create_criterio(self, varname_desc, query, prono_type, formula, lapso, umbral_type, umbral_factor_1=None, umbral_factor_2=None ):   

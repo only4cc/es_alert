@@ -59,7 +59,7 @@ def main():
         varname = sys.argv[2]    # Nombre de la variable: 
         ti_from = sys.argv[3]    # Fecha desde en epoch segundos <----
         tf_to   = sys.argv[4]    # Fecha hasta en epoch segundos <----
-        lapso   = sys.argv[5]    # lapso en segundos
+        lapso   = int(sys.argv[5])    # lapso en segundos
     else:
         print("pnumero de arametros:", len(sys.argv) )
     
