@@ -9,7 +9,7 @@ import util
 import variable
 import pprint
 
-def main():
+def main(tenant, varname):
 
     DEBUG = False   # Verbosidad
     DEMO  = False    # Para No digitar tenant, varname :)
@@ -47,4 +47,4 @@ def main():
         print ("A las: [", utc_time, "] el valor medido es:[", value, "]\nEpoch timestamp seg:", seg_timestamp )
 
 if __name__ == '__main__':
-    main()
+    main(tenant, varname)
