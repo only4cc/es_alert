@@ -9,10 +9,10 @@ import util
 import variable
 import pprint
 
-def main():
+def main(tenant, varname):
 
     DEBUG = False   # Verbosidad
-    DEMO  = True    # Para No digitar tenant, varname :)
+    DEMO  = False    # Para No digitar tenant, varname :)
 
     # Variable a evaluar (tenant es nulo si es una variable del cluster)
     if ( len(sys.argv) == 3 ):
@@ -87,4 +87,4 @@ def main():
     var.save_evaluation(evaluation)
 
 if __name__ == '__main__':
-    main()
+    main(tenant, varname)
