@@ -333,11 +333,12 @@ class Variable:
                                 '}'
                             )
         #print(query_get_last_ts)
-        try: lts = self.es.search(index='var_hist', body=query_get_last_ts )
+        last_ts = 0
+        try:
+            lts = self.es.search(index='var_hist', body=query_get_last_ts )
+            last_ts = lts['hits']['hits'][0]['_source']['timestamp']
         except Exception as e: 
             print("Error fatal no se pudo recuperar ultima medicion")
             print(e)
-            exit()
         
-        last_ts = lts['hits']['hits'][0]['_source']['timestamp'] 
         return last_ts
