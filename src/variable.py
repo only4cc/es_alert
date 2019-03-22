@@ -25,7 +25,7 @@ class Variable:
         try:
             currdir = os.getcwd()
             with open(currdir + "/config.yml", 'r') as ymlfile:
-                self.cfg = yaml.load(ymlfile)
+                self.cfg = yaml.safe_load(ymlfile)
         except Exception as e:
             print("Error fatal, no se pudo leer el archivo de las configuraciones")
             print(e)
@@ -36,7 +36,7 @@ class Variable:
         
         # Coneccion al cluster         
         try:
-            print("coneccion a ES ...")
+            #print("coneccion a ES ...")
             self.es = Elasticsearch(self.nodos, timeout=3)
         except Exception as e:
             print(e)
@@ -130,11 +130,15 @@ class Variable:
         if ( self.prono_type == 'F'):                   
             # Pronostico basado en Formula
             t = t_seg_epoch
-            self.ev = eval( self.formula )
-            print ("*** valor estimado de [",self.varname,"] ", " tenant: [", self.tenant,"]")
-            print ("*** usando formula : [", self.formula," ] = ", self.ev)
-            print ("*** en t[seg epoch]: ", t, " | hh:mm:", util.get_utc_hora_min(t) )
-            return self.ev
+            try:
+                self.ev = eval( self.formula )
+                print ("*** valor estimado de [",self.varname,"] ", " tenant: [", self.tenant,"]")
+                print ("*** usando formula : [", self.formula," ] = ", self.ev)
+                print ("*** en t[seg epoch]: ", t, " | hh:mm:", util.get_utc_hora_min(t) )
+            except Exception as e:
+                print(e)
+                print("Error:\nNo se pudo usar la formula la variable ["+self.varname+"] tenant ["+self.tenant+"]")
+                self.ev = 0
         else:
             # Pronostico basado en registros en ES            
             # inicio_i = int(utc_hhmm[:2]) * self.lapso    

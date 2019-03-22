@@ -1,0 +1,10 @@
+
+# Evalua y almacena valor de la variable
+*/5 * * * *    bash /home/es_alert/call_evalua.sh
+
+# Verifica anomalia de las variables
+*/5 * * * *    bash /home/es_alert/call_check.sh
+
+# Genera pronosticos de una variable
+* 0 * * *  bash /home/es_alert/call_gen_prono.sh 
+
