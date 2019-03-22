@@ -6,7 +6,7 @@ import datetime, sys, yaml, pprint, os
 import alert
 import util
 
-DEBUG = True   # Verbosidad
+DEBUG = False   # Verbosidad
 
 def alert_internal_problem(tenant,varname):
     nivel = 'INTERNAL'

@@ -51,8 +51,8 @@ def main(tenant, varname):
         print("Sin pronostico en el lapso de ese instante: ",seg_timestamp)
         exit()
 
-    # Evaluacion
-    # ----------
+    # Comparacion
+    # -----------
     print("*** comparando el valor actual: [",value,"] con umbrales min: [",umbral_min,"] y max: [", umbral_max,"]")
     print("*** variaciones respecto ubral: %6.4f y %6.4f" % ( (100*value / umbral_min), (100*value / umbral_max) ) )
     if ( value < umbral_max and value > umbral_min ):

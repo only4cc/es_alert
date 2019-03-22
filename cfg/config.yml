@@ -8,3 +8,4 @@ defaults:
   "times_alert":  4
   "prono_type":  'F'           # formula | "D" Discrete 
   "umbral_type": 'porcentual'  # 'fix' 
+  "difiere_segs" : 30
