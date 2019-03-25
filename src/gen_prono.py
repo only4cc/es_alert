@@ -83,7 +83,7 @@ if __name__ == '__main__':
         lapso   = int(sys.argv[5])    # lapso en segundos
     else:
         print(tenant, varname, ti_from, tf_to, lapso)
-        print("se aborta\, numero de parametros:", len(sys.argv), " se esperan 6")
+        print("se aborta numero de parametros:", len(sys.argv), " se esperan 6")
         exit()
 
     main(tenant, varname, ti_from, tf_to, lapso)
