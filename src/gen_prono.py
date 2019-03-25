@@ -50,26 +50,8 @@ def genera_pronostico(var, tenant, varname, ti_from, tf_to, lapso):
         t = t_sig 
             
 
-def main():
+def main(tenant, varname, ti_from, tf_to, lapso):
 
-    DEMO  = False    # Para No digitar tenant, varname :)
-
-    if ( len(sys.argv) == 6 ):
-        tenant  = sys.argv[1]    # Cuando la variable es "interna" ie Elasticsearch
-        varname = sys.argv[2]    # Nombre de la variable: 
-        ti_from = sys.argv[3]    # Fecha desde en epoch segundos <----
-        tf_to   = sys.argv[4]    # Fecha hasta en epoch segundos <----
-        lapso   = int(sys.argv[5])    # lapso en segundos
-    else:
-        print("pnumero de arametros:", len(sys.argv) )
-    
-    if DEMO:
-        tenant  = 'ES'          
-        varname = 'tot_docs'
-        ti_from = datetime.datetime.now().timestamp()
-        tf_to   = ti_from + (24*60*60)   # 24 es para 24 Horas
-        lapso   = 600  # Cada 10 min
-        
     try:
         var = variable.Variable(tenant, varname)
     except Exception as e:
@@ -84,4 +66,24 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+
+    DEMO  = False    # Para No digitar parametrso ...  tenant, varname, etc.  
+    if DEMO:
+        tenant  = 'ES'          
+        varname = 'tot_docs'
+        ti_from = datetime.datetime.now().timestamp()
+        tf_to   = ti_from + (24*60*60)   # 24 es para 24 Horas
+        lapso   = 600  # Cada 10 min
+
+    if ( len(sys.argv) <= 6 ):
+        tenant  = sys.argv[1]    # Cuando la variable es "interna" ie Elasticsearch
+        varname = sys.argv[2]    # Nombre de la variable
+        ti_from = sys.argv[3]    # Fecha desde en epoch segundos <----
+        tf_to   = sys.argv[4]    # Fecha hasta en epoch segundos <----
+        lapso   = int(sys.argv[5])    # lapso en segundos
+    else:
+        print(tenant, varname, ti_from, tf_to, lapso)
+        print("se aborta\, numero de parametros:", len(sys.argv), " se esperan 6")
+        exit()
+
+    main(tenant, varname, ti_from, tf_to, lapso)
