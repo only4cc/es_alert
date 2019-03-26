@@ -15,28 +15,30 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
 ## Resúmen de Indices
 
 ### Definicion o Criterio
-   tenant: (ES en caso de variables propias de Elasticsearch)
+   __tenant__: (ES en caso de variables propias de Elasticsearch)
    
    
-   varname: Id. la Variable de Interes
+   __varname__: Id. la Variable de Interes
    
    
-   variable_desc: Descripción de la Variable
+   __variable_desc__: Descripción de la Variable
    
-   query: Query a Ejecutar para obtener el valor de la variable
+   __query__: Query a Ejecutar para obtener el valor de la variable
    
-   prono_type: (F:Basado en Formula, D:Discreto)
+   __prono_type__: (F:Basado en Formula, D:Discreto)
    
-   lapse: (eventualmente sirve para definir la iteracion, i.e. entrada en el cron) 
+   __lapse__: (eventualmente sirve para definir la iteracion, i.e. entrada en el cron) 
    
-   formula: Formula para Pronosticar
+   __formula__: Formula para Pronosticar
    
-   umbral_type: (P:Porcentual o F:Fijo)
+   __umbral_type__: (P:Porcentual o F:Fijo)
    
-   umbral_factor_1:  factor para calcular el 1er umbral ej. 1.01 que permite calcular el umbral inferior y superior en un instante: Umbral_1 = valor estimado de la variable +/- umbral_factor_1 * valor_estimado 
+   __umbral_factor_1__:  factor para calcular el 1er umbral ej. 1.01 que permite calcular el umbral inferior y superior en un instante: Umbral_1 = valor estimado de la variable +/- umbral_factor_1 * valor_estimado 
    
-   umbral_factor_2 (idem)
-   
+   __umbral_factor_2__ (idem)
+
+   __umbral_factor_3__ (idem)
+
 
 **var_def**
 
