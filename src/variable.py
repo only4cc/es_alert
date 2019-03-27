@@ -49,7 +49,7 @@ class Variable:
                     '  "query": {'
                     '    "bool": {'
                     '      "must": [ '
-                    '           { "exists": { "field": "query" } },'
+                    '           { "exists": { "field": "varname" } },'
                     '			{ "match": {"tenant": "' + self.tenant  +'"}},'
                     '			{ "match": {"varname": "'+ self.varname + '"}'
                     '        }'
@@ -67,9 +67,15 @@ class Variable:
             print("Error fatal no se puedo recuperar la query del criterio")
             print(e)
             exit()
-        
-        self.query = self.criterio['hits']['hits'][0]['_source']['query']
-        
+
+        try: self.query = self.criterio['hits']['hits'][0]['_source']['query']
+        except Exception as e: 
+            print("Error fatal no se puedo acceder al valor de la query del criterio")
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint( self.criterio )
+            print(e)
+            exit()
+
         try:
             try:    self.varname_desc = self.criterio['hits']['hits'][0]['_source']['varname_desc']
             except: self.varname_desc = "Sin descripcion"
@@ -90,6 +96,9 @@ class Variable:
             self.veces_alert   = self.cfg['defaults']['times_alert'] 
             self.umbral_type   = self.cfg['defaults']['umbral_type'] # 'porcentual' / 'fix'
             self.percent       = 0.01 
+
+            if (self.prono_type == 'E'):
+                self.external = self.criterio['hits']['hits'][0]['_source']['external']
            
             if DEBUG: 
                 # Impresion formateada de criterio 
@@ -106,10 +115,18 @@ class Variable:
     
     def get_current_value(self):
         # Obtiene valor actual para la variable mediante la query almacenada en criterio
-        query_criterio = self.criterio['hits']['hits'][0]['_source']['query']
-        # Ejecuta la consulta para traer el valor actual de la variable monitoreada 
-        res               = self.es.search(body=query_criterio)
-        self.currval      = res['hits']['total'] 
+        if ( self.prono_type == 'F'):  
+            query_criterio = self.criterio['hits']['hits'][0]['_source']['query']
+            # Ejecuta la consulta para traer el valor actual de la variable monitoreada 
+            res               = self.es.search(body=query_criterio)
+            self.currval      = res['hits']['total'] 
+
+        if ( self.prono_type == 'E'):
+            #toexec = "bash /home/es_alert/src/" + self.external # mnav_total.sh
+            toexec = "bash " + self.external
+            self.currval = os.popen(toexec).read()  
+            self.currval = self.currval.rstrip()
+
         self.time_currval = util.get_seg_epoch_now()
         return self.currval
 
@@ -121,7 +138,10 @@ class Variable:
                     "value"            : self.currval,
                     "timestamp"        : self.time_currval
                 }
-        res = self.es.index(index='var_hist', doc_type='def', body=history ) 
+        try:
+            res = self.es.index(index='var_hist', doc_type='def', body=history ) 
+        except Exception as e:
+            print(e.info)
         return res
 
     def get_pronostico(self, t_seg_epoch):
@@ -280,13 +300,16 @@ class Variable:
         }
         
         try:
-            self.es.index(index='criteria', doc_type='def',body=body )
+            self.es.index(index='var_def', doc_type='def',body=body )
         except Exception as e:
             print(e)
             print("Error:\nNo se pudo crear la definicion de la variable ["+self.varname+"] tenant ["+self.tenant+"]")
 
 
     def __str__(self):
+        try: self.formula
+        except: self.formula ='sin formula'
+
         salida = "tenant:"+self.tenant + ", varname:" + self.varname + ", varname_desc:" \
                 + self.varname_desc + ",\nquery:" + self.query \
                 + "prono_type: "+self.prono_type + ", formula: " +self.formula + ", umbral_type:" \
