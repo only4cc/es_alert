@@ -25,11 +25,13 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
    
    __query__: Query a Ejecutar para obtener el valor de la variable
    
-   __prono_type__: (F:Basado en Formula, D:Discreto)
+   __prono_type__: (F:Basado en Formula, D:Discreto, E:External)
    
    __lapse__: (eventualmente sirve para definir la iteracion, i.e. entrada en el cron) 
    
    __formula__: Formula para Pronosticar
+   
+   __external__: Programa/Script externo a Ejecutar
    
    __umbral_type__: (P:Porcentual o F:Fijo)
    
