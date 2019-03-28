@@ -15,11 +15,12 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
 ## Resúmen de Indices
 
 ### Definicion o Criterio
-   __tenant__: (ES en caso de variables propias de Elasticsearch)
-   
+
+#### var_def
+
+   __tenant__: (ES en caso de variables propias de Elasticsearch) 
    
    __varname__: Id. la Variable de Interes
-   
    
    __variable_desc__: Descripción de la Variable
    
@@ -31,7 +32,7 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
    
    __formula__: Formula para Pronosticar
    
-   __external__: Programa/Script externo a Ejecutar
+   __external__: Programa/Script externo a Ejecutar 
    
    __umbral_type__: (P:Porcentual o F:Fijo)
    
@@ -42,22 +43,32 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
    __umbral_factor_3__ (idem)
 
 
-**var_def**
 
 ### Valores Historicos
-   tenant: 
+#### var_hist
+
+   __tenant__: 
    
-   varname: 
+   __varname__: 
    
-   value: valor medido
+   __value__: valor medido
    
-   timestamp: cuando ocurrió la medición, en segundos “epoch”
+   __timestamp__: cuando ocurrió la medición, en segundos “epoch”
    
-**var_hist**
+
 
 ### Pronosticos
 
-**var_prono**
+#### var_prono
+  __tenant__: 
+   
+   __varname__: 
+   
+   __estimated_value__: valor estimado
+   
+   __ts_ini__: timestamp de inicio cuando para el valor estimado, en segundos *“epoch”*
+
+   __ts_end__: timestamp de fin cuando para el valor estimado, en segundos *“epoch”*
 
 
 
