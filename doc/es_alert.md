@@ -32,8 +32,10 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
    
    __formula__: Formula para Pronosticar
    
-   __external__: Programa/Script externo a Ejecutar 
-   
+   __external_eval__: Programa/Script externo a Ejecutar para obtener el Valor de la variable
+
+   __external_prono__: Programa/Script externo a Ejecutar para Pronosticar 
+
    __umbral_type__: (P:Porcentual o F:Fijo)
    
    __umbral_factor_1__:  factor para calcular el 1er umbral ej. 1.01 que permite calcular el umbral inferior y superior en un instante: Umbral_1 = valor estimado de la variable +/- umbral_factor_1 * valor_estimado 
