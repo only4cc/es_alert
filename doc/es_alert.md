@@ -16,7 +16,7 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
 
 ### Definicion o Criterio
 
-#### var_def
+### indice: *var_def*
 
    __tenant__: (ES en caso de variables propias de Elasticsearch) 
    
@@ -38,7 +38,7 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
 
    __umbral_type__: (P:Porcentual o F:Fijo)
    
-   __umbral_factor_1__:  factor para calcular el 1er umbral ej. 1.01 que permite calcular el umbral inferior y superior en un instante: Umbral_1 = valor estimado de la variable +/- umbral_factor_1 * valor_estimado 
+   __umbral_factor_1__:  factor para calcular el 1er umbral ej. 1.01 que permite calcular el umbral inferior y superior en un instante: *Umbral_1* = valor estimado de la variable +/- umbral_factor_1 * valor_estimado 
    
    __umbral_factor_2__ (idem)
 
@@ -47,7 +47,7 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
 
 
 ### Valores Historicos
-#### var_hist
+#### indice: *var_hist*
 
    __tenant__: 
    
@@ -61,12 +61,13 @@ Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipo
 
 ### Pronosticos
 
-#### var_prono
+#### indice: *var_prono*
+
   __tenant__: 
    
    __varname__: 
    
-   __estimated_value__: valor estimado
+   __estimated_value__: valor estimado o pronosticado
    
    __ts_ini__: timestamp de inicio cuando para el valor estimado, en segundos *“epoch”*
 
