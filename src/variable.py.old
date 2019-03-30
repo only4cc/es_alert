@@ -14,10 +14,8 @@ def alert_internal_problem(tenant,varname):
     exit()
 
 class Variable:
-    ''' 
-        Variable para la cual se requiere alertar
-        El identificador de cada Variable es tenant + varname
-    ''' 
+    ''' Variable para la cual se requiere alertar
+        El identificador de cada Variable es tenant + varname ''' 
     
     def __init__(self, tenant, varname):
         ''' Obtiene parametros por defecto y Se conecta a ES '''
@@ -51,7 +49,7 @@ class Variable:
                     '  "query": {'
                     '    "bool": {'
                     '      "must": [ '
-                    '           { "exists": { "field": "varname" } },'
+                    '           { "exists": { "field": "query" } },'
                     '			{ "match": {"tenant": "' + self.tenant  +'"}},'
                     '			{ "match": {"varname": "'+ self.varname + '"}'
                     '        }'
@@ -64,34 +62,27 @@ class Variable:
         if DEBUG: 
             print("Buscando definicion de criterio con :\n",query_get_query)
         
-        try: self.definicion = self.es.search(index='var_def', body=query_get_query )
+        try: self.criterio = self.es.search(index='var_def', body=query_get_query )
         except Exception as e: 
-            print("No se puedo recuperar la definicion de esa variable", tenant, varname)
+            print("Error fatal no se puedo recuperar la query del criterio")
             print(e)
             exit()
-
-        try: self.query = self.definicion['hits']['hits'][0]['_source']['query']
-        except Exception as e: 
-            print("No se puedo acceder al valor de la query del criterio")
-            pp = pprint.PrettyPrinter(indent=4)
-            pp.pprint( self.definicion )
-            print(e)
-
+        
+        self.query = self.criterio['hits']['hits'][0]['_source']['query']
+        
         try:
-            try:    self.varname_desc = self.definicion['hits']['hits'][0]['_source']['varname_desc']
+            try:    self.varname_desc = self.criterio['hits']['hits'][0]['_source']['varname_desc']
             except: self.varname_desc = "Sin descripcion"
 
-            try:    self.prono_type  = self.definicion['hits']['hits'][0]['_source']['prono_type']
-            except: self.prono_type  = self.cfg['defaults']['prono_type']  # 'F' =  Formula / "D" = Discreto / "E" = External
-
-            print("prono_type:",self.prono_type)
-
+            try:    self.prono_type   = self.criterio['hits']['hits'][0]['_source']['prono_type']
+            except: self.prono_type   = self.cfg['defaults']['prono_type']  # 'F' =  Formula / "D" = Discreto          
+            
             if ( self.prono_type == 'F' ):
-                try:  self.formula = self.definicion['hits']['hits'][0]['_source']['formula'] 
+                try:  self.formula = self.criterio['hits']['hits'][0]['_source']['formula'] 
                 except Exception as e:
                     print(e)
 
-            try:    self.lapso         = self.definicion['hits']['hits'][0]['_source']['lapse']
+            try:    self.lapso         = self.criterio['hits']['hits'][0]['_source']['lapse']
             except: self.lapso         = self.cfg['defaults']['lapse']               
 
             self.veces_alarmas = 0    # Inicializa las alarmas en cero             
@@ -99,39 +90,26 @@ class Variable:
             self.veces_alert   = self.cfg['defaults']['times_alert'] 
             self.umbral_type   = self.cfg['defaults']['umbral_type'] # 'porcentual' / 'fix'
             self.percent       = 0.01 
-
-            if (self.prono_type == 'E'):
-                self.external_eval  = self.definicion['hits']['hits'][0]['_source']['external_eval']
-                self.external_prono = self.definicion['hits']['hits'][0]['_source']['external_prono']
            
             if DEBUG: 
                 # Impresion formateada de criterio 
                 pp = pprint.PrettyPrinter(indent=4)
-                pp.pprint( self.definicion )
+                pp.pprint( self.criterio )
                 print ("Query recuperada para buscar valor actual, tenant:[",self.tenant,"] variable:[",self.varname,"]")
-                print ("Criterio:", self.definicion['hits']['hits'][0]['_source']['query'] )            
+                print ("Criterio:", self.criterio['hits']['hits'][0]['_source']['query'] )            
         except Exception as e:
             print("Error:\nNo se recupero toda la info necesaria para la variable ["+self.varname+"] tenant ["+self.tenant+"]")
             print(e)
             alert_internal_problem(self.tenant, self.varname)                
 
-        return self.definicion
+        return self.criterio
     
     def get_current_value(self):
         # Obtiene valor actual para la variable mediante la query almacenada en criterio
-        if ( self.prono_type == 'F'):  
-            query_criterio = self.definicion['hits']['hits'][0]['_source']['query']
-            # Ejecuta la consulta para traer el valor actual de la variable monitoreada 
-            res               = self.es.search(body=query_criterio)
-            self.currval      = res['hits']['total'] 
-
-        if ( self.prono_type == 'E'):
-            print("evaluando valor actual con "+self.external_eval)
-            toexec = "sh " + self.external_eval        #  Ejemplo mnav_total.sh
-            #toexec = self.external_eval 
-            self.currval = os.popen(toexec).read()  
-            self.currval = self.currval.rstrip()
-
+        query_criterio = self.criterio['hits']['hits'][0]['_source']['query']
+        # Ejecuta la consulta para traer el valor actual de la variable monitoreada 
+        res               = self.es.search(body=query_criterio)
+        self.currval      = res['hits']['total'] 
         self.time_currval = util.get_seg_epoch_now()
         return self.currval
 
@@ -143,21 +121,12 @@ class Variable:
                     "value"            : self.currval,
                     "timestamp"        : self.time_currval
                 }
-        try:
-            res = self.es.index(index='var_hist', doc_type='def', body=history ) 
-        except Exception as e:
-            print(e.info)
+        res = self.es.index(index='var_hist', doc_type='def', body=history ) 
         return res
 
     def get_pronostico(self, t_seg_epoch):
         # Obtiene valor pronosticado para ese instante o intervalo de tiempo 
         # ------------------------------------------------------------------
-        if ( self.prono_type == 'E'):
-            #toexec = "python " + self.external_prono + " " + str(t_seg_epoch)
-            toexec = self.external_prono + " " + str(t_seg_epoch)
-            self.currval = os.popen(toexec).read()
-            self.currval = self.currval.rstrip()
-  
         if ( self.prono_type == 'F'):                   
             # Pronostico basado en Formula
             t = t_seg_epoch
@@ -198,7 +167,7 @@ class Variable:
                                         '} } }'
              )
             if DEBUG: print ("buscando pronostico con la consulta:", self.query_pronostico, " ...")
-            self.pronostico = self.es.search(index='var_prono', doc_type='prono', body=self.query_pronostico )             
+            self.pronostico = self.es.search(index='criteria', doc_type='prono', body=self.query_pronostico )             
             #---------------------------------------------------------------------------------------------------
             if DEBUG:
                 print("\nPronostico para el rango de ese instante:")
@@ -220,12 +189,12 @@ class Variable:
         ''' Obtiene Umbrales para alarmar '''
         if self.umbral_type == 'fix':
             try:
-                delta_max_1 = self.definicion['hits']['hits'][0]['_source']['delta_max_1']
+                delta_max_1 = self.criterio['hits']['hits'][0]['_source']['delta_max_1']
             except:
                 delta_max_1 = 0
             
             try:
-                delta_min_1 = self.definicion['hits']['hits'][0]['_source']['delta_min_1']
+                delta_min_1 = self.criterio['hits']['hits'][0]['_source']['delta_min_1']
             except:
                 delta_min_1 = 0
         else:
@@ -311,16 +280,13 @@ class Variable:
         }
         
         try:
-            self.es.index(index='var_def', doc_type='def',body=body )
+            self.es.index(index='criteria', doc_type='def',body=body )
         except Exception as e:
             print(e)
             print("Error:\nNo se pudo crear la definicion de la variable ["+self.varname+"] tenant ["+self.tenant+"]")
 
 
     def __str__(self):
-        try: self.formula
-        except: self.formula ='sin formula'
-
         salida = "tenant:"+self.tenant + ", varname:" + self.varname + ", varname_desc:" \
                 + self.varname_desc + ",\nquery:" + self.query \
                 + "prono_type: "+self.prono_type + ", formula: " +self.formula + ", umbral_type:" \
@@ -380,6 +346,3 @@ class Variable:
             print(e)
         
         return last_ts
-
-    def get_prono_type(self):
-        return self.prono_type

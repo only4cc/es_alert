@@ -10,17 +10,11 @@ import variable
 import pprint
 
 def main(tenant, varname):
-
     DEBUG = False   # Verbosidad
-    DEMO  = False    # Para No digitar tenant, varname :)
-
-    # Variable a evaluar (tenant es nulo si es una variable del cluster)
-    if ( len(sys.argv) == 3 ):
-        tenant  = sys.argv[1]    # Cuando la variable es "interna" ie Elasticsearch
-        varname = sys.argv[2]    # Nombre de la variable: "tot_docs" que corresponde a total de documentos en ES
+    DEMO  = False   # Para No digitar tenant, varname :)
 
     if DEMO:
-        tenant  = 'ES'          
+        tenant  = 'ES'        
         varname = 'tot_docs'   
 
     # Crea la instancia de la clase "Variable"
@@ -36,7 +30,11 @@ def main(tenant, varname):
     value = var.get_current_value()    
     
     # Almacena registro persistente para la Historia
-    print ("registrando valor actual para:", tenant, " variable:", varname)
+    print("registrando valor actual para ...")
+    print("tenant   :", tenant)
+    print("varname  :", varname)
+    print("timestamp:", var.time_currval)
+    print("currval  :", var.currval)
     var.save_current_value()
     
     # Timestamp de Ahora
@@ -47,4 +45,9 @@ def main(tenant, varname):
         print ("A las: [", utc_time, "] el valor medido es:[", value, "]\nEpoch timestamp seg:", seg_timestamp )
 
 if __name__ == '__main__':
+    # Variables a evaluar 
+    if ( len(sys.argv) == 3 ):
+        tenant  = sys.argv[1]    # Cuando la variable es "interna" ie Elasticsearch
+        varname = sys.argv[2]    # Nombre de la variable: "tot_docs" que corresponde a total de documentos en ES
+
     main(tenant, varname)

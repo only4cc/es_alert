@@ -2,3 +2,5 @@ repo/
 __pychache__
 .vscode
 .pyc
+.*
+src/*.pyc
