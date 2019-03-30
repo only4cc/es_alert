@@ -7,36 +7,71 @@ Describir en forma resumida los principales procesos y estructuras de datos util
 Las estructuras de datos administradas en Elasticsearch corresponden a 3 “tipos”, todos bajo el índice _criteria_:
 
 1. **Definición de la Variable o Criterio** : almacena la definición de la variable, como se consultará
+
 2. **Pronósticos** : los valores esperados en el tiempo y sus umbrales
+
 3. **Valores Historicos** : los valores medidos en el tiempo
 
 ## Resúmen de Indices
 
 ### Definicion o Criterio
-   tenant: (ES en caso de variables propias de Elasticsearch)
-   varname: Id. la Variable de Interes
-   variable_desc: Descripción de la Variable
-   query: Query a Ejecutar para obtener el valor de la variable
-   prono_type: (F:Basado en Formula, D:Discreto)
-   lapse: (eventualmente sirve para definir la iteracion, i.e. entrada en el cron) 
-   formula: Formula para Pronosticar
-   [ umbral_type: (P:Porcentual o F:Fijo) ]
-   umbral_factor_1:  factor para calcular el 1er umbral ej. 1.01 que permite calcular el umbral inferior y superior en un instante: Umbral_1 = valor estimado de la variable +/- umbral_factor_1 * valor_estimado 
-   umbral_factor_2 (idem)
 
-**var_def**
+### indice: *var_def*
+
+   __tenant__: (ES en caso de variables propias de Elasticsearch) 
+   
+   __varname__: Id. la Variable de Interes
+   
+   __variable_desc__: Descripción de la Variable
+   
+   __query__: Query a Ejecutar para obtener el valor de la variable
+   
+   __prono_type__: (F:Basado en Formula, D:Discreto, E:External)
+   
+   __lapse__: (eventualmente sirve para definir la iteracion, i.e. entrada en el cron) 
+   
+   __formula__: Formula para Pronosticar
+   
+   __external_eval__: Programa/Script externo a Ejecutar para obtener el Valor de la variable
+
+   __external_prono__: Programa/Script externo a Ejecutar para Pronosticar 
+
+   __umbral_type__: (P:Porcentual o F:Fijo)
+   
+   __umbral_factor_1__:  factor para calcular el 1er umbral ej. 1.01 que permite calcular el umbral inferior y superior en un instante: *Umbral_1* = valor estimado de la variable +/- umbral_factor_1 * valor_estimado 
+   
+   __umbral_factor_2__ (idem)
+
+   __umbral_factor_3__ (idem)
+
+
 
 ### Valores Historicos
-   tenant: 
-   varname: 
-   value: valor medido
-   timestamp: cuando ocurrió la medición, en segundos “epoch”
+#### indice: *var_hist*
+
+   __tenant__: 
    
-**var_hist**
+   __varname__: 
+   
+   __value__: valor medido
+   
+   __timestamp__: cuando ocurrió la medición, en segundos “epoch”
+   
+
 
 ### Pronosticos
 
-**var_prono**
+#### indice: *var_prono*
+
+  __tenant__: 
+   
+   __varname__: 
+   
+   __estimated_value__: valor estimado o pronosticado
+   
+   __ts_ini__: timestamp de inicio cuando para el valor estimado, en segundos *“epoch”*
+
+   __ts_end__: timestamp de fin cuando para el valor estimado, en segundos *“epoch”*
 
 
 
