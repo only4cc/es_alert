@@ -19,10 +19,6 @@ curl --silent  -XPOST "http://$NODOES:9200/$INDEXNAME/_search?size=0" -H 'Conten
 | grep '\"total\"' \
 | tail -1 \
 | sed 's/\"total\"://' \
-<<<<<<< HEAD
 | sed 's/ //g' \
 | sed 's/\,//g' 
 
-=======
-| sed 's/ //g' 
->>>>>>> 14497f84242fff000429a47d7da72266289b7678

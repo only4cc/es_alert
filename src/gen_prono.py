@@ -10,10 +10,15 @@
 import datetime, sys, yaml, pprint
 import util
 import variable
+import logging
+
+logging.basicConfig(level = logging.INFO, filename = "/log/gen_prono.log", format = '%(asctime)s  %(levelname)-10s %(processName)s  %(name)s %(message)s')
+
 
 def insert_pronostico(var, tenant, varname, ti, tf, valor_pronostico):
     """ insert_pronostico : Crear en ES con los valores pronosticados """
     print("Insertando en ES:", tenant, varname, ti, tf, valor_pronostico)
+    logging.info("Insertando en ES:"+ tenant+" "+varname +" periodo:"+str(ti)+"-"+str(tf)+" pronostico"+str(valor_pronostico))
     pronostic = {
                     "tenant"           : tenant,
                     "varname"          : varname,
@@ -26,6 +31,7 @@ def insert_pronostico(var, tenant, varname, ti, tf, valor_pronostico):
         resp = var.insert_prono(pronostic)   
     except Exception as e:
         print("Error:\n",e)
+        logging.error(e)
     return resp
 
 
@@ -37,6 +43,7 @@ def genera_pronostico(var, tenant, varname, ti_from, tf_to, lapso):
 
     tipo_prono = var.get_prono_type()
     print("tipo pronostico:", tipo_prono)
+    logging.info("tipo pronostico:"+ tipo_prono)
     #if ( tipo_prono == 'F' ):
     #   fn  = var.get_formula()
     #   if ( len(fn) < 2 ):
@@ -54,6 +61,7 @@ def genera_pronostico(var, tenant, varname, ti_from, tf_to, lapso):
         print(tenant, varname, ' : ', tt, end = "\t")
         print(datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S'), end = "\t")
         print("pronostico:", valor_pronostico)
+        logging.info("pronostico:"+ str(valor_pronostico))
         t_sig = t + lapso
         insert_pronostico(var, tenant, varname, t, t_sig, valor_pronostico)
         t = t_sig 
@@ -64,27 +72,30 @@ def main(tenant, varname, ti_from, tf_to, lapso):
         var = variable.Variable(tenant, varname)
     except Exception as e:
         print(e, "no se pudo conectar a ES")
+        logging.error("no se pudo conectar a ES")
         exit()
 
     var.get_criterio()
-    print(var)  
+    #print(var)  
     ti_from = int(ti_from)
     tf_to   = int(tf_to)
-    print ("generacion de pronosticos para "+tenant+"."+varname+" desde:",ti_from, " hasta:",tf_to )
-    print ("desde:",util.get_utc_hora_min(ti_from)," hasta:",util.get_utc_hora_min(tf_to) )
+    #print ("generacion de pronosticos para "+tenant+"."+varname+" desde:",ti_from, " hasta:",tf_to )
+    logging.info("generacion de pronosticos para:")
+    logging.info("tenant:"+tenant+" varname:"+varname+" periodo:"+str(ti_from)+"-"+str(tf_to)+"lapso:"+str(lapso))
+    logging.info("desde:"+str(util.get_utc_hora_min(ti_from))+" hasta:" +str(util.get_utc_hora_min(tf_to)) )
 
-    genera_pronostico(var, tenant, varname, ti_from, tf_to, lapso )
+    genera_pronostico(var, tenant, varname, ti_from, tf_to, lapso)
 
 
 if __name__ == '__main__':
 
-    DEMO  = False    # Para No digitar parametros ...  tenant, varname, etc.  
-    if DEMO:
-        tenant  = 'ES'          
-        varname = 'tot_docs'
-        ti_from = datetime.datetime.now().timestamp()
-        tf_to   = ti_from + (24*60*60)   # 24 es para 24 Horas
-        lapso   = 600  # Cada 10 min
+    #DEMO  = False    # Para No digitar parametros ...  tenant, varname, etc.  
+    #if DEMO:
+    #    tenant  = 'ES'          
+    #    varname = 'tot_docs'
+    #    ti_from = datetime.datetime.now().timestamp()
+    #    tf_to   = ti_from + (24*60*60)   # 24 es para 24 Horas
+    #    lapso   = 600  # Cada 10 min
 
     #for i in range (0, len(sys.argv)):
     #    print(i,sys.argv[i])
@@ -97,7 +108,7 @@ if __name__ == '__main__':
         lapso   = int(sys.argv[5])    # lapso en segundos
     else:
         print(tenant, varname, ti_from, tf_to, lapso)
-        print("se aborta. numero de parametros:", len(sys.argv), " se esperan 6")
+        logging.info( "se aborta. numero de parametros:"+len(sys.argv)+" se esperan 5 parametros")
         exit()
 
     main(tenant, varname, ti_from, tf_to, lapso)

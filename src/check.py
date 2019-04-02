@@ -1,3 +1,4 @@
+#
 # Verificacion
 # invocacion modulo de alerta para notificacion en caso que corresponde
 # usa las definiciones y pronosticos desde el index : criteria
@@ -8,20 +9,14 @@ import alert
 import util
 import variable
 import pprint
+import logging 
+
+logging.basicConfig(level = logging.INFO, filename = "/log/check.log", format = '%(asctime)s  %(levelname)-10s %(processName)s  %(name)s %(message)s')
+
 
 def main(tenant, varname):
 
-    DEBUG = False   # Verbosidad
-    DEMO  = False    # Para No digitar tenant, varname :)
-
-    # Variable a evaluar (tenant es nulo si es una variable del cluster)
-    if ( len(sys.argv) == 3 ):
-        tenant  = sys.argv[1]    # Cuando la variable es "interna" ie Elasticsearch
-        varname = sys.argv[2]    # Nombre de la variable: "tot_docs" que corresponde a total de documentos en ES
-
-    if DEMO:
-        tenant  = 'ES'          
-        varname = 'tot_docs'   
+    DEBUG = False   # nivel de Verbosidad
 
     # Crea la instancia de la clase "Variable"
     var = variable.Variable(tenant, varname)
@@ -41,14 +36,16 @@ def main(tenant, varname):
     if DEBUG: 
         utc_time      = util.get_utc_now()
         print ("A las: [", utc_time, "] el valor medido es:[", value, "]\nEpoch timestamp seg:", seg_timestamp )
+        logging.info("A las: ["+ str(utc_time)+ "] el valor medido es:["+str(value)+ "]\nEpoch timestamp seg:"+str(seg_timestamp))
 
     # Obtiene el Pronostico para la variable en ese timestamp
     # -------------------------------------------------------
     value_pron = var.get_pronostico(seg_timestamp)
     if ( value_pron > 0 ):
-        [umbral_max, umbral_min] = var.get_umbral(seg_timestamp) #<-- Debe obtenerse de criterio para el rango de hora y la variable monitoreada    
+        [umbral_max, umbral_min] = var.get_umbral(seg_timestamp) 
     else:
         print("Sin pronostico en el lapso de ese instante: ",seg_timestamp)
+        logging.info("Sin pronostico en el lapso de ese instante: "+str(seg_timestamp))
         exit()
 
     # Comparacion
@@ -86,5 +83,14 @@ def main(tenant, varname):
     evaluation = 'pendiente ...'
     var.save_evaluation(evaluation)
 
+
 if __name__ == '__main__':
+
+    if ( len(sys.argv) == 3 ):
+        tenant  = sys.argv[1]    # ES (tenant)
+        varname = sys.argv[2]    # Nombre de la variable: "tot_docs" que corresponde a total de documentos en ES
+    else:
+        logging.error("Error, se esperan 2 parametros: tenant y varname")
+        exit()
+
     main(tenant, varname)

@@ -47,4 +47,5 @@ if __name__ == '__main__':
         exit()
 
     pronostico = prono_mnav(time)
-    print(pronostico, end =" ")
+    #print(pronostico, end =" ")   Python 3.x
+    print(str(pronostico).rstrip())
