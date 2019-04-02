@@ -5,13 +5,19 @@ from elasticsearch import Elasticsearch
 import datetime, sys, yaml, pprint, os
 import alert
 import util
+import subprocess
 
-DEBUG = False   # Verbosidad
+DEBUG = False   # Verbosidad x stdout
 
 def alert_internal_problem(tenant,varname):
     nivel = 'INTERNAL'
-    alert.alarma(nivel, tenant, varname, '', '', util.get_seg_epoch_now(), "Error interno. tenant:"+tenant+" variable:"+varname)
-    exit()
+    mensaje = "Error interno. tenant:"+tenant+" variable:"+varname
+    alert.alarma(nivel, tenant, varname, '', '', util.get_seg_epoch_now(), mensaje)
+
+def exec_external(externo):
+    #output = os.popen(toexec).read()
+    output = subprocess.check_output(externo, shell=True)
+    return output.strip()
 
 class Variable:
     ''' 
@@ -119,8 +125,9 @@ class Variable:
         return self.definicion
     
     def get_current_value(self):
-        # Obtiene valor actual para la variable mediante la query almacenada en criterio
+        # Obtiene valor actual para la variable 
         if ( self.prono_type == 'F'):  
+            print("evaluando valor actual con formula")
             query_criterio = self.definicion['hits']['hits'][0]['_source']['query']
             # Ejecuta la consulta para traer el valor actual de la variable monitoreada 
             res               = self.es.search(body=query_criterio)
@@ -128,12 +135,10 @@ class Variable:
 
         if ( self.prono_type == 'E'):
             print("evaluando valor actual con "+self.external_eval)
-            toexec = "sh " + self.external_eval        #  Ejemplo mnav_total.sh
-            #toexec = self.external_eval 
-            self.currval = os.popen(toexec).read()  
-            self.currval = self.currval.rstrip()
+            toexec = "python " + self.external_eval        
+            self.currval =  exec_external(toexec)
 
-        self.time_currval = util.get_seg_epoch_now()
+        self.time_currval = util.get_seg_epoch_now()    # establece el timestamp de esa medicion
         return self.currval
 
     def save_current_value(self):
@@ -159,12 +164,12 @@ class Variable:
         # Basado en External
         if ( self.prono_type == 'E'):
             try:
-                t = t_seg_epoch
-                #toexec = "python " + self.external_prono + " " + str(t_seg_epoch)
-                toexec = "src/" + self.external_prono + " " + str(t_seg_epoch)
-                prono_val = os.popen(toexec).read()
+                externo = "python " + self.external_prono + " " + str(t_seg_epoch)
+                prono_val = exec_external(externo)
                 if ( len(prono_val) < 3 ):
                    prono_val = -1
+
+                t = t_seg_epoch
                 print ("*** valor estimado de [",self.varname,"] ", " tenant: [", self.tenant,"]")
                 print ("*** usando modo External : [", self.external_prono," ] = ", prono_val)
                 print ("*** en t[seg epoch]: ", t, " | hh:mm :", util.get_utc_hora_min(t) )

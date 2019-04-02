@@ -1,1 +1,1 @@
-python mnav_total_pron.py $1
+python mnav_total_prono.py $1
