@@ -16,8 +16,14 @@ def alert_internal_problem(tenant,varname):
 
 def exec_external(externo):
     #output = os.popen(toexec).read()
-    output = subprocess.check_output(externo, shell=True)
-    return output.strip()
+    try:
+        output = subprocess.check_output(externo, shell=True)
+        out = output.decode()
+    except Exception as e:
+        print("error al ejecutar :", externo)
+        print(e)
+        out = ""
+    return out.strip()
 
 class Variable:
     ''' 
@@ -106,6 +112,7 @@ class Variable:
             self.umbral_factor_1 = self.definicion['hits']['hits'][0]['_source']['umbral_factor_1']
             self.umbral_factor_2 = self.definicion['hits']['hits'][0]['_source']['umbral_factor_2']
             self.umbral_factor_3 = self.definicion['hits']['hits'][0]['_source']['umbral_factor_3']
+            self.alert_flag      = self.definicion['hits']['hits'][0]['_source']['alert_flag']
 
             if (self.prono_type == 'E'):
                 self.external_eval  = self.definicion['hits']['hits'][0]['_source']['external_eval']
@@ -139,6 +146,7 @@ class Variable:
             self.currval =  exec_external(toexec)
 
         self.time_currval = util.get_seg_epoch_now()    # establece el timestamp de esa medicion
+        self.currval = float(self.currval)
         return self.currval
 
     def save_current_value(self):
@@ -166,25 +174,25 @@ class Variable:
             try:
                 externo = "python " + self.external_prono + " " + str(t_seg_epoch)
                 prono_val = exec_external(externo)
-                if ( len(prono_val) < 3 ):
+                if ( len(prono_val) < 2 ):
                    prono_val = -1
 
                 t = t_seg_epoch
-                print ("*** valor estimado de [",self.varname,"] ", " tenant: [", self.tenant,"]")
                 print ("*** usando modo External : [", self.external_prono," ] = ", prono_val)
+                print ("*** valor estimado de [",self.varname,"] ", " tenant: [", self.tenant,"]")
                 print ("*** en t[seg epoch]: ", t, " | hh:mm :", util.get_utc_hora_min(t) )
             except Exception as e:
                 print(e)
                 prono_val = -1
-            return  prono_val
+            return float(prono_val)
   
         # Pronostico basado en Formula
         if ( self.prono_type == 'F'):                   
             t = t_seg_epoch
             try:
                 prono_val = eval( self.formula )
+                print ("*** usando modo Formula : [", self.formula," ] = ", prono_val)
                 print ("*** valor estimado de [",self.varname,"] ", " tenant: [", self.tenant,"]")
-                print ("*** usando formula : [", self.formula," ] = ", prono_val)
                 print ("*** en t[seg epoch]: ", t, " | hh:mm:", util.get_utc_hora_min(t) )
             except Exception as e:
                 print(e)
@@ -194,8 +202,6 @@ class Variable:
 
         # Pronostico basado en Filas de Pronosticos
         if ( self.prono_type == 'Q'):                   
-            # Pronostico basado en registros en ES            
-
             # inicio_i = int(utc_hhmm[:2]) * self.lapso    
             # inicio   = str( inicio_i )                 # HHMM de Inicio del Lapso
             # fin      = str( inicio_i + self.lapso )    # HHMM de Fin del Lapso
@@ -213,17 +219,16 @@ class Variable:
 
             t_seg_epoch_str = str(t_seg_epoch)
             self.query_pronostico = ('{ "query": { "bool":  '
-                                        '              { "must": [  '
-                                        '		  { "match": { "tenant": "'  + self.tenant + '" } }, '
-                                        '		  { "match": { "varname": "' + self.varname + '" } }, '
-                                        '		  { "range": { "ts_ini": { "lt": "'+t_seg_epoch_str+'" } } }, '
-                                        '		  { "range": { "ts_end": { "gt": "'+t_seg_epoch_str+'" } } } '
-                                        '						] '
+                                        '       { "must": [  '
+                                        '	{ "match": { "tenant": "'  + self.tenant + '" } }, '
+                                        '	{ "match": { "varname": "' + self.varname + '" } }, '
+                                        '	{ "range": { "ts_ini": { "lt": "'+t_seg_epoch_str+'" } } }, '
+                                        '	{ "range": { "ts_end": { "gt": "'+t_seg_epoch_str+'" } } } '
+                                        '		] '
                                         '} } }'
                                      )
             if DEBUG: print ("buscando pronostico con la consulta:", self.query_pronostico, " ...")
             self.pronostico = self.es.search(index='var_prono', doc_type='prono', body=self.query_pronostico )             
-
             if DEBUG:
                 print("\nPronostico para el rango de tiempo de ese instante:")
                 pp = pprint.PrettyPrinter(indent=4)
@@ -235,8 +240,9 @@ class Variable:
                 prono_val = self.pronostico['hits']['hits'][0]['_source']['estimated_value']
             else:
                 utc_time = util.get_utc_hora_min(t_seg_epoch)
-                print("* No se encontraron pronosticos para:", self.tenant, self.varname, "en epoch:",t_seg_epoch," hora:", utc_time)
+                print("*** No se encontraron pronosticos para:", self.tenant, self.varname, "en epoch:",t_seg_epoch," hora:", utc_time)
                 prono_val = -1
+
         return  prono_val
 
 
@@ -245,7 +251,7 @@ class Variable:
             Obtiene Umbrales para alarmar 
         '''
         prono_value = self.get_pronostico(seg_timestamp)
-
+  
         umbral_max_1 = self.umbral_factor_1 * prono_value + prono_value
         umbral_min_1 = self.umbral_factor_1 * prono_value - prono_value
         if (umbral_min_1 < 0): delta_min_1 = 0
@@ -258,7 +264,7 @@ class Variable:
         umbral_min_3 = self.umbral_factor_3 * prono_value - prono_value
         if (umbral_min_3 < 0): delta_min_3 = 0
 
-        return [umbral_max_1, umbral_min_1]
+        return [umbral_max_1, umbral_min_1, umbral_max_2, umbral_min_2, umbral_max_3, umbral_min_3]
 
     def acumula(self):
         self.veces_alarmas = self.veces_alarmas + 1
@@ -282,6 +288,9 @@ class Variable:
 
     def get_lapse(self):
         return self.lapso
+
+    def get_alert_flag(self):
+        return self.alert_flag
 
     def insert_prono(self, pronostic):
         res = self.es.index(index='var_prono', doc_type='def', body=pronostic ) 

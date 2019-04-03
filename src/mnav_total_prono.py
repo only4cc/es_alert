@@ -53,6 +53,7 @@ if __name__ == '__main__':
         print( "Error:", sys.argv[0]," requiere el parametro time en epoch.")
         exit()
 
-    pronostico = str(prono_mnav(time))
-    print(pronostico, end ="")   # Python 3.x
+    pronostico = prono_mnav(time) 
+    print(pronostico, end =" ")   # Python 3.x
     #print pronostico.rstrip()   # Python 2.x
+

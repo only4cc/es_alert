@@ -22,15 +22,14 @@ def main(tenant, varname):
     var = variable.Variable(tenant, varname)
     
     # Obtiene "criterio" definido para la variable
-    # --------------------------------------------
     var.get_criterio()
     if DEBUG: print (var)
 
     # Consulta el valor ACTUAL de la variable monitoreada usando la definicion de "criterio"   
-    # --------------------------------------------------------------------------------------
     value = var.get_current_value()    
+    if DEBUG: print("valor actual:", value)
        
-     # Timestamp de Ahora
+    # Timestamp de Ahora
     seg_timestamp = util.get_seg_epoch_now()
     
     if DEBUG: 
@@ -39,18 +38,36 @@ def main(tenant, varname):
         logging.info("A las: ["+ str(utc_time)+ "] el valor medido es:["+str(value)+ "]\nEpoch timestamp seg:"+str(seg_timestamp))
 
     # Obtiene el Pronostico para la variable en ese timestamp
-    # -------------------------------------------------------
-    value_pron = var.get_pronostico(seg_timestamp)
+    print("obtiene pronostico para la variableen este instante ...")
+    value_pron = int(var.get_pronostico(seg_timestamp))
     if ( value_pron > 0 ):
-        [umbral_max, umbral_min] = var.get_umbral(seg_timestamp) 
+         # Obtiene umbrales
+        [umbral_max_1, umbral_min_1, umbral_max_2, umbral_min_2, umbral_max_3, umbral_min_3] = var.get_umbral(seg_timestamp) 
+        print("umbrales:", "{:.1f}".format(umbral_max_1), umbral_min_1, umbral_max_2, umbral_min_2, umbral_max_3, umbral_min_3)
     else:
         print("Sin pronostico en el lapso de ese instante: ",seg_timestamp)
         logging.info("Sin pronostico en el lapso de ese instante: "+str(seg_timestamp))
         exit()
 
-    # Comparacion
-    # -----------
-    print("*** comparando el valor actual: [",value,"] con umbrales min: [",umbral_min,"] y max: [", umbral_max,"]")
+    # Comparaciones
+    print("comparando el valor actual: [",value,"] con umbrales")
+
+    # valor fuera de los extremos    
+    if ( value < umbral_min_1 ):
+        print(value, "menor que el minimo")
+    if ( value > umbral_max_3 ):
+        print(value, "mayor que el maximo")
+
+    # valor dentro de rangos
+    if ( value > umbral_min_1 and value < umbral_max_1 ):
+        print("dentro del rango 1")
+    if ( value > umbral_min_2 and value < umbral_max_2 ):
+        print("dentro del rango 2")
+    if ( value > umbral_min_3 and value < umbral_max_3 ):
+        print("dentro del rango 3")
+
+
+    '''
     print("*** variaciones respecto ubral: %6.4f y %6.4f" % ( (100*value / umbral_min), (100*value / umbral_max) ) )
     if ( value < umbral_max and value > umbral_min ):
         var.reducer()
@@ -82,13 +99,14 @@ def main(tenant, varname):
 	
     evaluation = 'pendiente ...'
     var.save_evaluation(evaluation)
+    '''
 
 
 if __name__ == '__main__':
 
     if ( len(sys.argv) == 3 ):
-        tenant  = sys.argv[1]    # ES (tenant)
-        varname = sys.argv[2]    # Nombre de la variable: "tot_docs" que corresponde a total de documentos en ES
+        tenant  = sys.argv[1] # ES (tenant)
+        varname = sys.argv[2] # Nombre de la variable: ej tot_docs que corresponde a total de documentos en ES
     else:
         logging.error("Error, se esperan 2 parametros: tenant y varname")
         exit()

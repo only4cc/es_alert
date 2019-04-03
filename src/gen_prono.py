@@ -7,6 +7,7 @@
 #   lapso : cada cuanto generar otro intervalo
 #
 
+
 import datetime, sys, yaml, pprint
 import util
 import variable
@@ -88,15 +89,6 @@ def main(tenant, varname, ti_from, tf_to, lapso):
 
 
 if __name__ == '__main__':
-
-    #DEMO  = False    # Para No digitar parametros ...  tenant, varname, etc.  
-    #if DEMO:
-    #    tenant  = 'ES'          
-    #    varname = 'tot_docs'
-    #    ti_from = datetime.datetime.now().timestamp()
-    #    tf_to   = ti_from + (24*60*60)   # 24 es para 24 Horas
-    #    lapso   = 600  # Cada 10 min
-
     #for i in range (0, len(sys.argv)):
     #    print(i,sys.argv[i])
 

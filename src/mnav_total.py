@@ -47,5 +47,6 @@ body_query = """ {
 
 resp = es.search(index='be-mnav-2019*', body=body_query)
 #print("resp :", resp["hits"]["total"] )
-print( str(resp["hits"]["total"]).rstrip(), end="" )
+num = resp["hits"]["total"]
+print( str(num).rstrip(), end=" " )
 
